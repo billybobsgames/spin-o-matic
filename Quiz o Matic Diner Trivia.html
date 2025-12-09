@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Billy Bob's Quiz-O-Matic Diner Trivia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: "Trebuchet MS", system-ui, sans-serif;
+      background: #F8EDE3;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #2A4C7F;
+      text-align: center;
+    }
+
+    .quiz-wrapper {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 18px 24px;
+      background: #FFFFFF;
+      border-radius: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quiz-subtitle {
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      color: #7a6c5d;
+    }
+
+    .question-count {
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: #7a6c5d;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      margin-bottom: 16px;
+    }
+
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .answer-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 0.98rem;
+      cursor: pointer;
+      background: #00A7A1;
+      color: #fff;
+      box-shadow: 0 3px 0 #007772;
+      transition: transform 0.08s, box-shadow 0.08s, background 0.2s;
+    }
+
+    .answer-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 #007772;
+    }
+
+    .answer-btn.correct {
+      background: #2E7D32;
+      box-shadow: 0 3px 0 #1b5e20;
+    }
+
+    .answer-btn.wrong {
+      background: #C62828;
+      box-shadow: 0 3px 0 #8e1c1c;
+    }
+
+    .answer-btn.disabled {
+      cursor: default;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .feedback {
+      min-height: 3em;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    .score {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: #7a6c5d;
+    }
+
+    .primary-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 22px;
+      font-size: 0.96rem;
+      cursor: pointer;
+      background: #C62828;
+      color: #fff;
+      box-shadow: 0 3px 0 #8e1c1c;
+    }
+
+    .primary-btn.hidden {
+      display: none;
+    }
+
+    .tagline {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #7a6c5d;
+    }
+
+    /* POP-UP IMAGE (Correct / Nice Try) — bigger & lower */
+    .popup-overlay {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 660px; /* move DOWN by increasing this */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      z-index: 10;
+    }
+
+    .popup-overlay.show {
+      opacity: 1;
+    }
+
+    .popup-overlay img {
+      max-width: 90%;
+      width: 280px;  /* bigger image */
+      height: auto;
+      transform: scale(0.9);
+      transition: transform 0.25s ease;
+    }
+
+    .popup-overlay.show img {
+      transform: scale(1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-wrapper">
+
+    <img src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Quiz-o-Matic-Diner-Trivia.png"
+         alt="Quiz-O-Matic Diner Trivia"
+         style="max-width: 100%; height: auto; margin-bottom: 10px;">
+
+    <!-- POP-UP IMAGE -->
+    <div id="popupOverlay" class="popup-overlay hidden">
+      <img id="popupImage" src="" alt="">
+    </div>
+
+    <p class="quiz-subtitle">Work as a table, or all on your own to guess the answers!</p>
+
+    <p id="questionCount" class="question-count"></p>
+    <p id="questionText" class="question-text"></p>
+
+    <div id="answers" class="answers"></div>
+
+    <p id="feedback" class="feedback"></p>
+    <p id="score" class="score"></p>
+
+    <button id="nextButton" class="primary-btn hidden">Next question</button>
+    <button id="playAgainButton" class="primary-btn hidden">Play again</button>
+
+    <p class="tagline">Billy Bob's — tastes like happiness!</p>
+  </div>
+
+  <script>
+    const CORRECT_IMG_URL = "https://www.billybobsparlour.com/wp-content/uploads/2025/12/Correct.png";
+    const NICETRY_IMG_URL = "https://www.billybobsparlour.com/wp-content/uploads/2025/12/Nice-Try.png";
+
+    const questions = [
+      {
+        text: "Which of these is a classic American diner drink?",
+        options: ["Milkshake", "Green Tea", "Mango Lassi"],
+        correctIndex: 0,
+        fact: "A thick milkshake in a frosty tin cup is about as diner-classic as it gets!"
+      },
+      {
+        text: "In the USA, what does 'chips' usually mean?",
+        options: ["Crisps", "Fries", "Ice cream"],
+        correctIndex: 1,
+        fact: "In the UK we say chips for fries – in the USA they say chips to describe a bag of crisps!"
+      },
+      {
+        text: "Which state is famously known for Route 66 diners?",
+        options: ["Montana", "Arizona", "Alaska"],
+        correctIndex: 1,
+        fact: "Arizona has some of the most iconic Route 66 roadside diners and neon signs."
+      },
+      {
+        text: "Which of these would you most expect on a diner menu?",
+        options: ["Sushi Platter", "Stack of Pancakes", "Spaghetti Carbonara"],
+        correctIndex: 1,
+        fact: "A 'full stack' of pancakes dripping with maple syrup screams American diner."
+      },
+      {
+        text: "What do many people pour on top of pancakes?",
+        options: ["Gravy", "Ketchup", "Maple syrup"],
+        correctIndex: 2,
+        fact: "Maple syrup is a classic sweet topping for American pancakes."
+      },
+      {
+        text: "In a diner, what does a 'soda jerk' do?",
+        options: ["Plays tricks with soda cans", "Makes soda fizz everywhere", "Mixes yummy sodas and ice-cream floats for everyone"],
+        correctIndex: 2,
+        fact: "Soda jerks were cheerful counter helpers who made fizzy drinks and delicious floats."
+      },
+      {
+        text: "Which sweet treat is often served in a tall soda glass with a straw and spoon?",
+        options: ["Sundae", "Root Beer Float", "Brownie"],
+        correctIndex: 1,
+        fact: "Sundaes sit in a dish, but floats usually come in tall glasses big enough to fit the floating ice cream ball!"
+      },
+      {
+        text: "In a classic American diner, what might a 'short stack' be?",
+        options: ["Two pancakes", "Tiny burger", "Half a milkshake"],
+        correctIndex: 0,
+        fact: "A 'short stack' is a smaller stack of pancakes – just as tasty though!"
+      },
+      {
+        text: "What’s a fun thing many diners have at the table in old movies?",
+        options: ["Tiny juke box", "Board games", "TV remote"],
+        correctIndex: 0,
+        fact: "Mini jukeboxes on the table let you pick songs for the whole diner to hear."
+      },
+      {
+        text: "Which of these sounds most like a diner breakfast?",
+        options: ["Pancakes and Bacon", "Sushi and Miso Soup", "Curry and Naan"],
+        correctIndex: 0,
+        fact: "Bacon, eggs and pancakes with maple syrup – that’s a hefty American breakfast!"
+      },
+      {
+        text: "If someone orders 'over easy' eggs, what are they asking for?",
+        options: ["Boiled eggs", "Fried eggs flipped once", "Scrambled eggs"],
+        correctIndex: 1,
+        fact: "Over easy means fried on one side, flipped, and cooked briefly on the other so the yolk stays runny."
+      },
+      {
+        text: "Which appliance makes ice cream super cold?",
+        options: ["A freezer", "A toaster", "A hair dryer"],
+        correctIndex: 0,
+        fact: "Freezers keep ice cream frozen so it doesn’t melt!"
+      },
+      {
+        text: "What do you use to drink a milkshake?",
+        options: ["A fork", "Chopsticks", "A straw"],
+        correctIndex: 2,
+        fact: "Thick shakes sometimes need a wide straw to help you sip."
+      },
+      {
+        text: "What do you often find sprinkled on top of pancakes?",
+        options: ["Pepper", "Icing sugar", "Salt"],
+        correctIndex: 1,
+        fact: "A dusting of icing sugar makes pancakes look extra yummy."
+      },
+      {
+        text: "What makes soda fizzy?",
+        options: ["Glitter", "Bubbles of carbon dioxide", "Sand"],
+        correctIndex: 1,
+        fact: "Carbon dioxide is what gives fizzy drinks their tingle!"
+      },
+      {
+        text: "Which drink is often served with whipped cream?",
+        options: ["Hot chocolate", "Water", "Carrot juice"],
+        correctIndex: 0,
+        fact: "Diners love topping hot chocolate with a swirl of whipped cream!"
+      },
+      {
+        text: "What do diners often add to burgers?",
+        options: ["Marbles", "Cheese", "Mud"],
+        correctIndex: 1,
+        fact: "A cheeseburger is one of the most popular diner meals."
+      },
+      {
+        text: "Which sauce might you dip fries into?",
+        options: ["Soy sauce", "Ketchup", "Chocolate spread"],
+        correctIndex: 1,
+        fact: "Ketchup is the classic dip for fries."
+      },
+      {
+        text: "Where did the Philly cheesesteak first become famous?",
+        options: ["California", "Philadelphia", "Texas"],
+        correctIndex: 1,
+        fact: "The Philly cheesesteak was created in Philadelphia and is now loved across America."
+      },
+      {
+        text: "Why is a 'ballpark dog' called that?",
+        options: ["It looks like a baseball", "It’s the kind of hot dog sold at baseball games", "It wags its tail"],
+        correctIndex: 1,
+        fact: "Hot dogs are a classic snack at baseball games in the USA — that’s why they’re called ballpark dogs!"
+      },
+      {
+        text: "At Billy Bob’s, what does it mean when our pulled pork is 'smoked'?",
+        options: ["It’s cooked slowly over chunks of wood that waft up smoke to make it tender and tasty", "It’s burned till it smokes!", "It’s cooked in a microwave"],
+        correctIndex: 0,
+        fact: "Slow cooking the pork over wood smoke makes it extra tender and gives it that yummy barbecue taste Billy Bob’s is known for."
+      },
+      {
+        text: "Why does Billy Bob’s call its crispy onion straws 'tumbleweed onions'?",
+        options: ["They’re shaped like donuts", "They grow in the desert", "They look like the tumbleweeds that roll across the ground in old Western movies"],
+        correctIndex: 2,
+        fact: "Tumbleweeds are round, dry plants that blow across the desert — the curly onion straws look just like little versions of them!"
+      }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+
+    let currentIndex = 0;
+    let score = 0;
+    let currentQuestionOrder = [];
+
+    const questionCountEl = document.getElementById("questionCount");
+    const questionTextEl = document.getElementById("questionText");
+    const answersEl = document.getElementById("answers");
+    const feedbackEl = document.getElementById("feedback");
+    const scoreEl = document.getElementById("score");
+    const nextButton = document.getElementById("nextButton");
+    const playAgainButton = document.getElementById("playAgainButton");
+
+    const popupOverlay = document.getElementById("popupOverlay");
+    const popupImage = document.getElementById("popupImage");
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function startGame() {
+      const indexes = Array.from({ length: questions.length }, (_, i) => i);
+      currentQuestionOrder = shuffle(indexes).slice(0, TOTAL_QUESTIONS);
+      currentIndex = 0;
+      score = 0;
+      feedbackEl.textContent = "";
+      scoreEl.textContent = "";
+      playAgainButton.classList.add("hidden");
+      nextButton.classList.add("hidden");
+      showQuestion();
+    }
+
+    function showPopupImage(isCorrect) {
+      popupImage.src = isCorrect ? CORRECT_IMG_URL : NICETRY_IMG_URL;
+      popupOverlay.classList.remove("hidden");
+      void popupOverlay.offsetWidth;
+      popupOverlay.classList.add("show");
+
+      setTimeout(() => {
+        popupOverlay.classList.remove("show");
+        setTimeout(() => {
+          popupOverlay.classList.add("hidden");
+        }, 200);
+      }, 900);
+    }
+
+    function showQuestion() {
+      const qIndex = currentQuestionOrder[currentIndex];
+      const q = questions[qIndex];
+
+      questionCountEl.textContent = `Question ${currentIndex + 1} of ${TOTAL_QUESTIONS}`;
+      questionTextEl.textContent = q.text;
+
+      answersEl.innerHTML = "";
+      feedbackEl.textContent = "";
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "answer-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleAnswer(idx));
+        answersEl.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selectedIndex) {
+      const qIndex = currentQuestionOrder[currentIndex];
+      const q = questions[qIndex];
+
+      const buttons = answersEl.querySelectorAll(".answer-btn");
+      buttons.forEach((btn, idx) => {
+        btn.classList.add("disabled");
+        if (idx === q.correctIndex) btn.classList.add("correct");
+        if (idx === selectedIndex && selectedIndex !== q.correctIndex) btn.classList.add("wrong");
+      });
+
+      if (selectedIndex === q.correctIndex) {
+        score++;
+        feedbackEl.textContent = "Correct! " + q.fact;
+        showPopupImage(true);
+      } else {
+        feedbackEl.textContent = "Nice try! " + q.fact;
+        showPopupImage(false);
+      }
+
+      scoreEl.textContent = `Score: ${score} / ${TOTAL_QUESTIONS}`;
+
+      currentIndex++;
+      if (currentIndex < TOTAL_QUESTIONS) {
+        nextButton.classList.remove("hidden");
+      } else {
+        nextButton.classList.add("hidden");
+        playAgainButton.classList.remove("hidden");
+        feedbackEl.textContent += "  Round finished!";
+      }
+    }
+
+    nextButton.addEventListener("click", () => {
+      nextButton.classList.add("hidden");
+      showQuestion();
+    });
+
+    playAgainButton.addEventListener("click", startGame);
+
+    startGame();
+  </script>
+
+</body>
+</html>
