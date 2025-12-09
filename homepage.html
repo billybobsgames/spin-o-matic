@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Billy Bob's Game-O-Matic Arcade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: "Trebuchet MS", system-ui, sans-serif;
+      background: radial-gradient(circle at top, #ffe9d2 0, #f8ede3 40%, #f3d2b9 100%);
+      margin: 0;
+      padding: 20px 10px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2A4C7F;
+      text-align: center;
+    }
+
+    .arcade-wrapper {
+      max-width: 700px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 22px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      padding: 22px 18px 34px;
+      border: 6px solid #C62828;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .billy-logo {
+      max-width: 260px;
+      width: 70%;
+      height: auto;
+      margin: 0 auto 12px;
+    }
+
+    .arcade-title {
+      font-size: 1.9rem;
+      margin: 4px 0 6px;
+      color: #C62828;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      text-shadow: 0 2px 0 #ffffff, 0 4px 0 rgba(0,0,0,0.15);
+    }
+
+    .arcade-subtitle {
+      font-size: 1rem;
+      margin-bottom: 18px;
+      color: #7a6c5d;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    @media (min-width: 640px) {
+      .games-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .game-card {
+      background: #F8EDE3;
+      border-radius: 18px;
+      padding: 14px 12px 18px;
+      border: 2px solid #00A7A1;
+      box-shadow: 0 4px 0 #c4b3a4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 240px;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 0 #c4b3a4;
+    }
+
+    .game-card img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 12px;
+      border-radius: 12px;
+    }
+
+    .play-btn {
+      margin-top: auto;
+      display: inline-block;
+      border-radius: 999px;
+      padding: 10px 22px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      text-decoration: none;
+      background: #00A7A1;
+      color: #ffffff;
+      box-shadow: 0 3px 0 #007772;
+      transition: transform 0.08s, box-shadow 0.08s, background 0.15s;
+    }
+
+    .play-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 #007772;
+    }
+
+    .footnote {
+      margin-top: 22px;
+      font-size: 0.85rem;
+      color: #7a6c5d;
+    }
+
+    .brand-line {
+      margin-top: 4px;
+      font-size: 0.9rem;
+      color: #C62828;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="arcade-wrapper">
+
+    <!-- Billy Bob's logo -->
+    <img 
+      src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Billy-Bobs-logo.png" 
+      class="billy-logo"
+      alt="Billy Bob's Logo"
+    >
+
+    <h1 class="arcade-title">Game-O-Matic Arcade</h1>
+    <p class="arcade-subtitle">
+      One QR, loads of fun! Pick a game below and let the good times roll.
+    </p>
+
+    <div class="games-grid">
+
+      <!-- Spin-O-Matic Card -->
+      <div class="game-card">
+        <img 
+          src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/game-header.png"
+          alt="Spin-O-Matic"
+        >
+        <a class="play-btn" href="spin-o-matic.html">Play Spin-O-Matic</a>
+      </div>
+
+      <!-- Quiz-O-Matic Card -->
+      <div class="game-card">
+        <img 
+          src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Quiz-o-Matic-Diner-Trivia.png"
+          alt="Quiz-O-Matic"
+        >
+        <a class="play-btn" href="quiz-o-matic.html">Play Quiz-O-Matic</a>
+      </div>
+
+    </div>
+
+    <p class="footnote">
+      Tip: Scan the same QR next time to jump back into the arcade!
+    </p>
+
+    <p class="brand-line">Billy Bob's — tastes like happiness!</p>
+
+  </div>
+
+</body>
+</html>
