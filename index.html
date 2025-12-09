@@ -2,171 +2,118 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Billy Bob's Game-O-Matic Arcade</title>
+  <title>Billy Bob's Games Arcade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body {
       font-family: "Trebuchet MS", system-ui, sans-serif;
-      background: radial-gradient(circle at top, #ffe9d2 0, #f8ede3 40%, #f3d2b9 100%);
+      background: #F8EDE3;
       margin: 0;
-      padding: 20px 10px;
-      min-height: 100vh;
+      padding: 0;
       display: flex;
-      align-items: center;
       justify-content: center;
+      min-height: 100vh;
       color: #2A4C7F;
+    }
+
+    .wrapper {
+      max-width: 480px;
+      width: 100%;
+      padding: 16px 18px 24px;
       text-align: center;
     }
 
-    .arcade-wrapper {
-      max-width: 700px;
-      width: 100%;
-      background: #ffffff;
-      border-radius: 22px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-      padding: 22px 18px 34px;
-      border: 6px solid #C62828;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .billy-logo {
-      max-width: 260px;
-      width: 70%;
+    .logo {
+      max-width: 180px;
+      width: 60%;
       height: auto;
-      margin: 0 auto 12px;
+      margin: 4px auto 10px;
+      display: block;
     }
 
-    .arcade-title {
-      font-size: 1.9rem;
-      margin: 4px 0 6px;
-      color: #C62828;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      text-shadow: 0 2px 0 #ffffff, 0 4px 0 rgba(0,0,0,0.15);
-    }
-
-    .arcade-subtitle {
-      font-size: 1rem;
+    .intro {
+      font-size: 0.95rem;
       margin-bottom: 18px;
       color: #7a6c5d;
     }
 
-    .games-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
-    }
-
-    @media (min-width: 640px) {
-      .games-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
     .game-card {
-      background: #F8EDE3;
+      background: #FFFFFF;
       border-radius: 18px;
-      padding: 14px 12px 18px;
-      border: 2px solid #00A7A1;
-      box-shadow: 0 4px 0 #c4b3a4;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 240px;
-      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      padding: 14px 14px 18px;
+      margin-bottom: 16px;
     }
 
-    .game-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 7px 0 #c4b3a4;
-    }
-
-    .game-card img {
+    .game-header-img {
       max-width: 100%;
       height: auto;
-      margin-bottom: 12px;
-      border-radius: 12px;
+      display: block;
+      margin: 0 auto 10px;
     }
 
     .play-btn {
-      margin-top: auto;
-      display: inline-block;
+      border: none;
       border-radius: 999px;
       padding: 10px 22px;
-      font-size: 0.95rem;
-      font-weight: bold;
+      font-size: 0.96rem;
+      cursor: pointer;
+      background: #C62828;
+      color: #fff;
+      box-shadow: 0 3px 0 #8e1c1c;
       text-decoration: none;
-      background: #00A7A1;
-      color: #ffffff;
-      box-shadow: 0 3px 0 #007772;
-      transition: transform 0.08s, box-shadow 0.08s, background 0.15s;
+      display: inline-block;
+      margin-top: 4px;
     }
 
     .play-btn:active {
       transform: translateY(1px);
-      box-shadow: 0 1px 0 #007772;
+      box-shadow: 0 1px 0 #8e1c1c;
     }
 
-    .footnote {
-      margin-top: 22px;
+    .tagline {
+      margin-top: 8px;
       font-size: 0.85rem;
       color: #7a6c5d;
-    }
-
-    .brand-line {
-      margin-top: 4px;
-      font-size: 0.9rem;
-      color: #C62828;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <div class="arcade-wrapper">
-
+  <div class="wrapper">
     <!-- Billy Bob's logo -->
-    <img 
-      src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Billy-Bobs-logo.png" 
-      class="billy-logo"
+    <img
+      src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Billy-Bobs-logo.png"
       alt="Billy Bob's Logo"
+      class="logo"
     >
 
-    <h1 class="arcade-title">Game-O-Matic Arcade</h1>
-    <p class="arcade-subtitle">
-      One QR, loads of fun! Pick a game below and let the good times roll.
+    <p class="intro">
+      Welcome to Billy Bob’s little game corner! Pick a game below and have some fun while you wait for your food.
     </p>
 
-    <div class="games-grid">
-
-      <!-- Spin-O-Matic Card -->
-      <div class="game-card">
-        <img 
-          src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/game-header.png"
-          alt="Spin-O-Matic"
-        >
-        <a class="play-btn" href="spin-o-matic.html">Play Spin-O-Matic</a>
-      </div>
-
-      <!-- Quiz-O-Matic Card -->
-      <div class="game-card">
-        <img 
-          src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Quiz-o-Matic-Diner-Trivia.png"
-          alt="Quiz-O-Matic"
-        >
-        <a class="play-btn" href="quiz-o-matic.html">Play Quiz-O-Matic</a>
-      </div>
-
+    <!-- Spin-O-Matic card -->
+    <div class="game-card">
+      <img
+        src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/game-header.png"
+        alt="Spin-O-Matic"
+        class="game-header-img"
+      >
+      <a href="homepage.html" class="play-btn">Play Spin-O-Matic</a>
     </div>
 
-    <p class="footnote">
-      Tip: Scan the same QR next time to jump back into the arcade!
-    </p>
+    <!-- Quiz-O-Matic card -->
+    <div class="game-card">
+      <img
+        src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Quiz-o-Matic-Diner-Trivia.png"
+        alt="Quiz-O-Matic Diner Trivia"
+        class="game-header-img"
+      >
+      <a href="Quiz%20o%20Matic%20Diner%20Trivia.html" class="play-btn">Play Quiz-O-Matic</a>
+    </div>
 
-    <p class="brand-line">Billy Bob's — tastes like happiness!</p>
+    <p class="tagline">Billy Bob's — tastes like happiness!</p>
 
   </div>
 
