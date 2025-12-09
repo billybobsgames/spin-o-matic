@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Billy Bob's Spin-O-Matic!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: "Trebuchet MS", system-ui, sans-serif;
+      background: #F8EDE3;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      color: #2A4C7F;
+    }
+
+    .wrapper {
+      max-width: 480px;
+      padding: 12px 16px 16px;
+    }
+
+    .game-header {
+      width: 320px;
+      max-width: 100%;
+      margin: 10px auto 0;
+      display: block;
+    }
+
+    .wheel-container {
+      position: relative;
+      width: min(320px, 80vw);
+      margin: -30px auto 8px;
+    }
+
+    #wheel {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+      transform: rotate(0deg);
+    }
+
+    .arrow-overlay {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      top: -18%;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .whirl-btn {
+      width: 260px;
+      max-width: 90%;
+      cursor: pointer;
+      margin: 6px auto 0;
+      display: block;
+    }
+
+    .result {
+      margin-top: 14px;
+      font-size: 1rem;
+      min-height: 3em;
+      line-height: 1.4;
+      color: #2A4C7F;
+    }
+
+    .tagline {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #7a6c5d;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrapper">
+
+    <img
+      src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/game-header.png"
+      alt="Billy Bob's Spin-O-Matic"
+      class="game-header"
+    >
+
+    <div class="wheel-container">
+      <img
+        id="wheel"
+        src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Wheel.png"
+        alt="Spin Wheel"
+      >
+      <img
+        class="arrow-overlay"
+        src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Arrow.png"
+        alt="Pointer"
+      >
+    </div>
+
+    <img
+      id="spinButton"
+      src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Give-it-a-whirl.png"
+      alt="Give it a whirl"
+      class="whirl-btn"
+    >
+
+    <div id="result" class="result"></div>
+
+    <p class="tagline">Billy Bob's — tastes like happiness!</p>
+  </div>
+
+  <script>
+    const wheel = document.getElementById("wheel");
+    const spinButton = document.getElementById("spinButton");
+    const resultDiv = document.getElementById("result");
+
+    const segments = [
+      { label: "States Showdown", text: "As a table, name as many U.S. states as you can in 30 seconds. No Googling, just guessing!" },
+      { label: "Milkshake Flavours", text: "Take turns naming milkshake flavours. No repeats! When someone hesitates, they're out." },
+      { label: "Eye Spy – Diner Edition", text: "Someone starts: 'Eye spy with my little eye… something beginning with S.' Keep going until you crack it." },
+      { label: "Neon Hunt", text: "From where you’re sitting, how many neon signs can you spot? No getting up!" },
+      { label: "Pancake Topping Challenge", text: "In 20 seconds, how many pancake toppings can your table name? Would you actually try them?" },
+      { label: "Crazy Law!", text: "Did you know? In parts of the U.S., there's an old law saying you can't walk around with an ice cream in your pocket!" },
+      { label: "Colour Hunt", text: "Find something that matches each Billy Bob’s colour: red, turquoise, cream and blue." },
+      { label: "Sound Detective", text: "Close your eyes for 5 seconds—how many diner sounds can you hear? Sizzling? Clinking? Chatting?" }
+    ];
+
+    const segmentCount = segments.length;
+    const segmentAngle = 360 / segmentCount;
+
+    let isSpinning = false;
+    let currentRotation = 0;
+
+    spinButton.addEventListener("click", () => {
+      if (isSpinning) return;
+      isSpinning = true;
+      resultDiv.textContent = "";
+
+      const chosenIndex = Math.floor(Math.random() * segmentCount);
+      const fullTurns = 5;
+
+      const chosenCenterAngle = chosenIndex * segmentAngle + segmentAngle / 2;
+      const targetAngle = 360 - chosenCenterAngle;
+
+      const base = currentRotation % 360;
+      let diff = targetAngle - base;
+      if (diff < 0) diff += 360;
+
+      const extra = fullTurns * 360 + diff;
+      const stopAngle = currentRotation + extra;
+      currentRotation = stopAngle;
+
+      wheel.style.transition = "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)";
+      wheel.style.transform = `rotate(${stopAngle}deg)`;
+
+      wheel.addEventListener(
+        "transitionend",
+        () => {
+          const seg = segments[chosenIndex];
+          resultDiv.innerHTML = `<strong>${seg.label}</strong><br>${seg.text}`;
+          isSpinning = false;
+        },
+        { once: true }
+      );
+    });
+  </script>
+
+</body>
+</html>
