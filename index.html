@@ -2,172 +2,173 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Billy Bob's Spin-O-Matic!</title>
+  <title>Billy Bob's Game-O-Matic Arcade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body {
       font-family: "Trebuchet MS", system-ui, sans-serif;
-      background: #F8EDE3;
+      background: radial-gradient(circle at top, #ffe9d2 0, #f8ede3 40%, #f3d2b9 100%);
       margin: 0;
-      padding: 0;
+      padding: 20px 10px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2A4C7F;
+      text-align: center;
+    }
+
+    .arcade-wrapper {
+      max-width: 700px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 22px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      padding: 22px 18px 34px;
+      border: 6px solid #C62828;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .billy-logo {
+      max-width: 260px;
+      width: 70%;
+      height: auto;
+      margin: 0 auto 12px;
+    }
+
+    .arcade-title {
+      font-size: 1.9rem;
+      margin: 4px 0 6px;
+      color: #C62828;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      text-shadow: 0 2px 0 #ffffff, 0 4px 0 rgba(0,0,0,0.15);
+    }
+
+    .arcade-subtitle {
+      font-size: 1rem;
+      margin-bottom: 18px;
+      color: #7a6c5d;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    @media (min-width: 640px) {
+      .games-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .game-card {
+      background: #F8EDE3;
+      border-radius: 18px;
+      padding: 14px 12px 18px;
+      border: 2px solid #00A7A1;
+      box-shadow: 0 4px 0 #c4b3a4;
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-align: center;
-      color: #2A4C7F;
+      justify-content: space-between;
+      min-height: 240px;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
 
-    .wrapper {
-      max-width: 480px;
-      padding: 12px 16px 16px;
+    .game-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 0 #c4b3a4;
     }
 
-    .game-header {
-      width: 320px;
+    .game-card img {
       max-width: 100%;
-      margin: 10px auto 0;
-      display: block;
-    }
-
-    .wheel-container {
-      position: relative;
-      width: min(320px, 80vw);
-      margin: -30px auto 8px;
-    }
-
-    #wheel {
-      width: 100%;
       height: auto;
-      display: block;
-      transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
-      transform: rotate(0deg);
+      margin-bottom: 12px;
+      border-radius: 12px;
     }
 
-    .arrow-overlay {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90px;
-      top: -18%;
-      z-index: 5;
-      pointer-events: none;
+    .play-btn {
+      margin-top: auto;
+      display: inline-block;
+      border-radius: 999px;
+      padding: 10px 22px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      text-decoration: none;
+      background: #00A7A1;
+      color: #ffffff;
+      box-shadow: 0 3px 0 #007772;
+      transition: transform 0.08s, box-shadow 0.08s, background 0.15s;
     }
 
-    .whirl-btn {
-      width: 260px;
-      max-width: 90%;
-      cursor: pointer;
-      margin: 6px auto 0;
-      display: block;
+    .play-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 #007772;
     }
 
-    .result {
-      margin-top: 14px;
-      font-size: 1rem;
-      min-height: 3em;
-      line-height: 1.4;
-      color: #2A4C7F;
-    }
-
-    .tagline {
-      margin-top: 12px;
-      font-size: 0.9rem;
+    .footnote {
+      margin-top: 22px;
+      font-size: 0.85rem;
       color: #7a6c5d;
+    }
+
+    .brand-line {
+      margin-top: 4px;
+      font-size: 0.9rem;
+      color: #C62828;
+      font-weight: bold;
     }
   </style>
 </head>
-
 <body>
 
-  <div class="wrapper">
+  <div class="arcade-wrapper">
 
-    <img
-      src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/game-header.png"
-      alt="Billy Bob's Spin-O-Matic"
-      class="game-header"
+    <!-- Billy Bob's logo -->
+    <img 
+      src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Billy-Bobs-logo.png" 
+      class="billy-logo"
+      alt="Billy Bob's Logo"
     >
 
-    <div class="wheel-container">
-      <img
-        id="wheel"
-        src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Wheel.png"
-        alt="Spin Wheel"
-      >
-      <img
-        class="arrow-overlay"
-        src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Arrow.png"
-        alt="Pointer"
-      >
+    <h1 class="arcade-title">Game-O-Matic Arcade</h1>
+    <p class="arcade-subtitle">
+      One QR, loads of fun! Pick a game below and let the good times roll.
+    </p>
+
+    <div class="games-grid">
+
+      <!-- Spin-O-Matic Card -->
+      <div class="game-card">
+        <img 
+          src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/game-header.png"
+          alt="Spin-O-Matic"
+        >
+        <a class="play-btn" href="spin-o-matic.html">Play Spin-O-Matic</a>
+      </div>
+
+      <!-- Quiz-O-Matic Card -->
+      <div class="game-card">
+        <img 
+          src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Quiz-o-Matic-Diner-Trivia.png"
+          alt="Quiz-O-Matic"
+        >
+        <a class="play-btn" href="quiz-o-matic.html">Play Quiz-O-Matic</a>
+      </div>
+
     </div>
 
-    <img
-      id="spinButton"
-      src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/Give-it-a-whirl.png"
-      alt="Give it a whirl"
-      class="whirl-btn"
-    >
+    <p class="footnote">
+      Tip: Scan the same QR next time to jump back into the arcade!
+    </p>
 
-    <div id="result" class="result"></div>
+    <p class="brand-line">Billy Bob's — tastes like happiness!</p>
 
-    <p class="tagline">Billy Bob's — tastes like happiness!</p>
   </div>
-
-  <script>
-    const wheel = document.getElementById("wheel");
-    const spinButton = document.getElementById("spinButton");
-    const resultDiv = document.getElementById("result");
-
-    const segments = [
-      { label: "States Showdown", text: "As a table, name as many U.S. states as you can in 30 seconds. No Googling, just guessing!" },
-      { label: "Milkshake Flavours", text: "Take turns naming milkshake flavours. No repeats! When someone hesitates, they're out." },
-      { label: "Eye Spy – Diner Edition", text: "Someone starts: 'Eye spy with my little eye… something beginning with S.' Keep going until you crack it." },
-      { label: "Neon Hunt", text: "From where you’re sitting, how many neon signs can you spot? No getting up!" },
-      { label: "Pancake Topping Challenge", text: "In 20 seconds, how many pancake toppings can your table name? Would you actually try them?" },
-      { label: "Crazy Law!", text: "Did you know? In parts of the U.S., there's an old law saying you can't walk around with an ice cream in your pocket!" },
-      { label: "Colour Hunt", text: "Find something that matches each Billy Bob’s colour: red, turquoise, cream and blue." },
-      { label: "Sound Detective", text: "Close your eyes for 5 seconds—how many diner sounds can you hear? Sizzling? Clinking? Chatting?" }
-    ];
-
-    const segmentCount = segments.length;
-    const segmentAngle = 360 / segmentCount;
-
-    let isSpinning = false;
-    let currentRotation = 0;
-
-    spinButton.addEventListener("click", () => {
-      if (isSpinning) return;
-      isSpinning = true;
-      resultDiv.textContent = "";
-
-      const chosenIndex = Math.floor(Math.random() * segmentCount);
-      const fullTurns = 5;
-
-      const chosenCenterAngle = chosenIndex * segmentAngle + segmentAngle / 2;
-      const targetAngle = 360 - chosenCenterAngle;
-
-      const base = currentRotation % 360;
-      let diff = targetAngle - base;
-      if (diff < 0) diff += 360;
-
-      const extra = fullTurns * 360 + diff;
-      const stopAngle = currentRotation + extra;
-      currentRotation = stopAngle;
-
-      wheel.style.transition = "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)";
-      wheel.style.transform = `rotate(${stopAngle}deg)`;
-
-      wheel.addEventListener(
-        "transitionend",
-        () => {
-          const seg = segments[chosenIndex];
-          resultDiv.innerHTML = `<strong>${seg.label}</strong><br>${seg.text}`;
-          isSpinning = false;
-        },
-        { once: true }
-      );
-    });
-  </script>
 
 </body>
 </html>
