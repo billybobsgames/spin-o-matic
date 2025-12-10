@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -118,16 +118,29 @@
     const spinButton = document.getElementById("spinButton");
     const resultDiv = document.getElementById("result");
 
-    // Pool of silly real US laws
+    // Pool of silly real US laws with reasons
     const crazyLaws = [
-      "In Alabama, it’s illegal to walk around with an ice-cream cone in your back pocket.",
-      "In Arizona, it’s illegal for a donkey to sleep in a bathtub.",
-      "In Louisiana, you’re not allowed to tie an alligator to a fire hydrant.",
-      "In Maine, it’s against the law to step out of a plane while it’s flying."
+      {
+        law: "In Alabama, it's illegal to walk around with an ice-cream cone in your back pocket.",
+        reason: "WHY? Because sneaky people once used this trick to lure horses away without ‘officially’ stealing them!"
+      },
+      {
+        law: "In Arizona, it's illegal for a donkey to sleep in a bathtub.",
+        reason: "WHY? A rancher’s donkey once floated away during a flood while snoozing in an old tub!"
+      },
+      {
+        law: "In Louisiana, you're not allowed to tie an alligator to a fire hydrant.",
+        reason: "WHY? Firefighters kept discovering gators chained to their hydrants — not ideal during emergencies!"
+      },
+      {
+        law: "In Maine, it’s against the law to step out of a plane while it’s flying.",
+        reason: "WHY? Believe it or not, someone tried it — so lawmakers decided to make things crystal clear!"
+      }
     ];
 
     function getRandomCrazyLaw() {
-      return crazyLaws[Math.floor(Math.random() * crazyLaws.length)];
+      const item = crazyLaws[Math.floor(Math.random() * crazyLaws.length)];
+      return `${item.law}<br><em>${item.reason}</em>`;
     }
 
     const segments = [
@@ -154,6 +167,10 @@
       {
         label: "States Showdown",
         text: "Take turns naming U.S. states — no repeats! How long can your table last?"
+      },
+      {
+        label: "Guess the Food",
+        text: "Someone secretly picks a Billy Bob’s food item. Everyone else asks yes/no questions until someone guesses it!"
       },
       {
         label: "Crazy U.S. Law!",
@@ -203,7 +220,7 @@
           resultDiv.innerHTML = `<strong>${seg.label}</strong><br>${resultText}`;
           isSpinning = false;
 
-          // 🔧 Reset rotation so it never grows huge (prevents glitches after many spins)
+          // Reset rotation so it never grows huge (prevents glitches after many spins)
           setTimeout(() => {
             wheel.style.transition = "none";
             currentRotation = currentRotation % 360;
