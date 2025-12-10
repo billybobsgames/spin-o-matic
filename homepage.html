@@ -40,8 +40,8 @@
       width: 100%;
       height: auto;
       display: block;
-      transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
       transform: rotate(0deg);
+      transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
     }
 
     .arrow-overlay {
@@ -118,7 +118,7 @@
     const spinButton = document.getElementById("spinButton");
     const resultDiv = document.getElementById("result");
 
-    // Pool of silly real US laws (the 4 you liked)
+    // Pool of silly real US laws
     const crazyLaws = [
       "In Alabama, it’s illegal to walk around with an ice-cream cone in your back pocket.",
       "In Arizona, it’s illegal for a donkey to sleep in a bathtub.",
@@ -190,6 +190,7 @@
       const stopAngle = currentRotation + extra;
       currentRotation = stopAngle;
 
+      // spin
       wheel.style.transition = "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)";
       wheel.style.transform = `rotate(${stopAngle}deg)`;
 
@@ -197,9 +198,21 @@
         "transitionend",
         () => {
           const seg = segments[chosenIndex];
-          const resultText = typeof seg.text === "function" ? seg.text() : seg.text;
+          const resultText =
+            typeof seg.text === "function" ? seg.text() : seg.text;
           resultDiv.innerHTML = `<strong>${seg.label}</strong><br>${resultText}`;
           isSpinning = false;
+
+          // 🔧 Reset rotation so it never grows huge (prevents glitches after many spins)
+          setTimeout(() => {
+            wheel.style.transition = "none";
+            currentRotation = currentRotation % 360;
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+            // force reflow so next spin transition works
+            void wheel.offsetWidth;
+            wheel.style.transition =
+              "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)";
+          }, 50);
         },
         { once: true }
       );
