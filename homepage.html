@@ -127,7 +127,20 @@
     const resultDiv = document.getElementById("result");
     const roundInfo = document.getElementById("roundInfo");
 
-    // Pool of silly real US laws with reasons
+    // ---------- Helpers ----------
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function hr() {
+      return "<hr style='border:none;border-top:1px solid #ddd;margin:10px 0;'>";
+    }
+
+    // ---------- Pools ----------
     const crazyLaws = [
       {
         law: "In Alabama, it's illegal to walk around with an ice-cream cone in your back pocket.",
@@ -167,6 +180,25 @@
       }
     ];
 
+    // Shared tongue-twister pool (so your 3 tongue-twister segments don't repeat each other)
+    const tongueTwisters = [
+      "Milkshake makers mix mighty fast.",
+      "Hot dogs hop from grill to bun.",
+      "Billy Bob’s burgers in buns bite big."
+      // Add more here later!
+    ];
+
+    // States challenge pool (so “States Showdown” varies instead of always the same prompt)
+    const stateChallenges = [
+      "Take turns naming U.S. states — no repeats! First person to hesitate is out.",
+      "Take turns naming U.S. state capitals — no repeats! (You can pass once.)",
+      "Take turns naming U.S. states that start with a vowel (A, E, I, O, U). No repeats!",
+      "Take turns naming U.S. states with TWO words (like New York). No repeats!",
+      "Name as many U.S. states as you can in 20 seconds as a table — go!"
+      // Add more here later!
+    ];
+
+    // ---------- Segments ----------
     const segments = [
       {
         label: "Ice Cream Flavour Frenzy",
@@ -178,15 +210,15 @@
       },
       {
         label: "Milkshake Tongue Twister",
-        text: "Try saying this 3 times fast: ‘Milkshake makers mix mighty fast.’ Take turns!"
+        text: () => getNextTwistersHTML()
       },
       {
         label: "Hot Dog Tongue Twister",
-        text: "Try saying this 3 times fast: ‘Hot dogs hop from grill to bun.’ Take turns!"
+        text: () => getNextTwistersHTML()
       },
       {
         label: "Burger Bite Tongue Twister",
-        text: "Try saying this 3 times fast: ‘Billy Bob’s burgers in buns bite big.’ Take turns!"
+        text: () => getNextTwistersHTML()
       },
       {
         label: "Billy Bob’s Memory Game",
@@ -194,7 +226,7 @@
       },
       {
         label: "States Showdown",
-        text: "Take turns naming U.S. states — no repeats! How long can your table last?"
+        text: () => getNextStateChallengesHTML()
       },
       {
         label: "Guess the Food",
@@ -202,33 +234,26 @@
       },
       {
         label: "Crazy U.S. Law!",
-        text: () => getRandomCrazyLaw()
+        text: () => getNextLawsHTML()
       }
     ];
 
     const segmentCount = segments.length;
     const segmentAngle = 360 / segmentCount;
 
-    let isSpinning = false;
-    let currentRotation = 0;
-
-    // --- Utility: shuffle array in place ---
-    function shuffle(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
+    // Pro-rata: how many items to show per hit of a pooled segment
+    function itemsPerHit(poolLength) {
+      return Math.max(1, Math.round(poolLength / segmentCount));
     }
 
-    // --- SEGMENT BAG: no repeats until all segments used, then reshuffle and continue ---
+    // ---------- Segment bag (no repeats until all segments used; then reshuffle and continue) ----------
     let segmentBag = [];
-    let segmentRound = 0;
+    let round = 0;
 
     function refillSegmentBag() {
       segmentBag = shuffle([...Array(segmentCount).keys()]);
-      segmentRound += 1;
-      roundInfo.textContent = `Round ${segmentRound} — ${segmentCount} spins to see every segment once.`;
+      round += 1;
+      roundInfo.textContent = `Round ${round} — you’ll see every segment once in ${segmentCount} spins.`;
     }
 
     function nextSegmentIndex() {
@@ -236,26 +261,71 @@
       return segmentBag.pop();
     }
 
-    // --- LAW BAG: no repeats until laws used up; refills when empty (so it always has a law) ---
+    // ---------- Law bag (no repeats until used up; refills when empty) ----------
     let lawBag = [];
-
     function refillLawBag() {
       lawBag = shuffle([...Array(crazyLaws.length).keys()]);
     }
-
     function nextLawIndex() {
       if (lawBag.length === 0) refillLawBag();
       return lawBag.pop();
     }
-
-    function getRandomCrazyLaw() {
-      const item = crazyLaws[nextLawIndex()];
-      return `${item.law}<br><em>${item.reason}</em>`;
+    function getNextLawsHTML() {
+      const count = itemsPerHit(crazyLaws.length);
+      const picks = [];
+      for (let i = 0; i < count; i++) {
+        const item = crazyLaws[nextLawIndex()];
+        picks.push(`${item.law}<br><em>${item.reason}</em>`);
+      }
+      return picks.join(hr());
     }
 
-    // Init bags on load
+    // ---------- Tongue twister bag (shared across all tongue twister segments) ----------
+    let twisterBag = [];
+    function refillTwisterBag() {
+      twisterBag = shuffle([...Array(tongueTwisters.length).keys()]);
+    }
+    function nextTwisterIndex() {
+      if (twisterBag.length === 0) refillTwisterBag();
+      return twisterBag.pop();
+    }
+    function getNextTwistersHTML() {
+      const count = itemsPerHit(tongueTwisters.length);
+      const picks = [];
+      for (let i = 0; i < count; i++) {
+        const t = tongueTwisters[nextTwisterIndex()];
+        picks.push(`Try saying this 3 times fast: ‘${t}’`);
+      }
+      return `${picks.join(hr())}<br>Take turns!`;
+    }
+
+    // ---------- State challenge bag ----------
+    let stateBag = [];
+    function refillStateBag() {
+      stateBag = shuffle([...Array(stateChallenges.length).keys()]);
+    }
+    function nextStateIndex() {
+      if (stateBag.length === 0) refillStateBag();
+      return stateBag.pop();
+    }
+    function getNextStateChallengesHTML() {
+      const count = itemsPerHit(stateChallenges.length);
+      const picks = [];
+      for (let i = 0; i < count; i++) {
+        picks.push(stateChallenges[nextStateIndex()]);
+      }
+      return picks.join(hr());
+    }
+
+    // Init bags
     refillSegmentBag();
     refillLawBag();
+    refillTwisterBag();
+    refillStateBag();
+
+    // ---------- Spin logic ----------
+    let isSpinning = false;
+    let currentRotation = 0;
 
     spinButton.addEventListener("click", () => {
       if (isSpinning) return;
@@ -286,12 +356,12 @@
           resultDiv.innerHTML = `<strong>${seg.label}</strong><br>${resultText}`;
           isSpinning = false;
 
-          // Keep rotation number from growing forever (prevents rare long-run glitches)
+          // Prevent rotation number growing huge over time
           setTimeout(() => {
             wheel.style.transition = "none";
             currentRotation = currentRotation % 360;
             wheel.style.transform = `rotate(${currentRotation}deg)`;
-            void wheel.offsetWidth; // force reflow
+            void wheel.offsetWidth;
             wheel.style.transition = "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)";
           }, 50);
         },
