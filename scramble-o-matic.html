@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Billy Bob’s Scramble-O-Matic!</title>
+
+  <style>
+    body{
+      font-family:"Trebuchet MS",system-ui,sans-serif;
+      background:#F8EDE3;
+      margin:0;
+      padding:0;
+      color:#2A4C7F;
+      display:flex;
+      justify-content:center;
+      text-align:center;
+    }
+    .wrap{
+      width:min(520px, 92vw);
+      padding:12px 14px 18px; /* tiny tighten (was 14px 14px 18px) */
+    }
+    .header{
+      width:320px;
+      max-width:100%;
+      margin:4px auto 0px; /* ✅ tighter gap under header (was 6px auto 2px) */
+      display:block;
+    }
+    .card{
+      background:rgba(255,255,255,0.78);
+      border:1px solid rgba(42,76,127,0.15);
+      border-radius:18px;
+      padding:6px 12px 12px; /* ✅ tighter top padding (was 8px 12px 12px) */
+      box-shadow:0 6px 18px rgba(0,0,0,0.06);
+      margin-top:4px; /* ✅ pulls card up slightly */
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin:12px 0 6px;
+      align-items:center;
+    }
+    select, button{
+      font-family:inherit;
+      font-size:0.95rem;
+      padding:10px 14px;
+      border-radius:14px;
+      border:1px solid rgba(42,76,127,0.20);
+      cursor:pointer;
+    }
+    select{
+      background:#fff;
+      color:#2A4C7F;
+    }
+
+    .start-btn{
+      background:#2A4C7F;
+      color:#fff;
+      font-size:1rem;
+      font-weight:700;
+      padding:14px 18px;
+      border:none;
+      box-shadow:0 6px 14px rgba(42,76,127,0.35);
+    }
+    .start-btn:hover{ transform:translateY(-1px); }
+
+    .reset-btn{
+      background:#fff;
+      color:#2A4C7F;
+    }
+
+    .grid{
+      --size: 3;
+      --gap: 6px;
+      width:min(420px, 92vw);
+      aspect-ratio: 1 / 1;
+      margin:10px auto 6px;
+      display:grid;
+      grid-template-columns: repeat(var(--size), 1fr);
+      gap: var(--gap);
+      user-select:none;
+      touch-action:manipulation;
+      transition: gap 0.25s ease;
+    }
+
+    .grid.solved{
+      --gap: 0px;
+    }
+
+    .tile{
+      border-radius:14px;
+      border:1px solid rgba(42,76,127,0.10);
+      background-color:#fff;
+
+      background-repeat:no-repeat;
+      background-size: 300% 300%; /* overwritten by JS */
+      background-position: 0% 0%; /* overwritten by JS */
+
+      box-shadow:0 2px 8px rgba(0,0,0,0.06);
+      transition: transform 0.08s ease, border-color 0.12s ease;
+    }
+    .tile.selected{
+      border-color: rgba(42,76,127,0.55);
+      transform: scale(0.98);
+    }
+
+    .grid.solved .tile{
+      border-color: transparent;
+      box-shadow:none;
+      border-radius:0px;
+    }
+    .grid.solved .tile.corner-tl{ border-top-left-radius:14px; }
+    .grid.solved .tile.corner-tr{ border-top-right-radius:14px; }
+    .grid.solved .tile.corner-bl{ border-bottom-left-radius:14px; }
+    .grid.solved .tile.corner-br{ border-bottom-right-radius:14px; }
+
+    .meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:6px;
+      color:#7a6c5d;
+      font-size:0.92rem;
+    }
+    .msg{
+      margin-top:10px;
+      font-size:1rem;
+      min-height:2.2em;
+      line-height:1.35;
+    }
+    .tagline{
+      margin-top:10px;
+      font-size:0.9rem;
+      color:#7a6c5d;
+    }
+    .spark{
+      display:inline-block;
+      animation: pop 0.7s ease-in-out infinite alternate;
+    }
+    @keyframes pop{
+      from{ transform: translateY(0); }
+      to{ transform: translateY(-2px); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <img class="header"
+      src="https://www.billybobsparlour.com/wp-content/uploads/2025/12/ChatGPT-Image-Dec-12-2025-12_42_35-PM.png"
+      alt="Billy Bob’s Scramble-O-Matic!" />
+
+    <div class="card">
+      <h2 style="margin:6px 0 2px;">Picture Scramble</h2>
+      <div style="color:#7a6c5d;font-size:0.95rem;margin-bottom:8px;">
+        Tap two tiles to swap them. Put the picture back together!
+      </div>
+
+      <div class="row">
+        <label>
+          Difficulty:
+          <select id="sizeSelect">
+            <option value="2">Easy (2×2)</option>
+            <option value="3" selected>Standard (3×3)</option>
+            <option value="4">Tricky (4×4)</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="row">
+        <button id="shuffleBtn" class="start-btn">
+          Scramble to start the game!
+        </button>
+        <button id="resetBtn" class="reset-btn">Reset</button>
+      </div>
+
+      <div id="grid" class="grid"></div>
+
+      <div class="meta">
+        <div>Moves: <strong id="moves">0</strong></div>
+        <div id="status">Ready when you are.</div>
+      </div>
+
+      <div id="msg" class="msg"></div>
+    </div>
+
+    <p class="tagline">Billy Bob’s — tastes like happiness!</p>
+  </div>
+
+  <script>
+    const IMAGE_URL = "https://www.billybobsparlour.com/wp-content/uploads/2025/12/Christmas-Diner-Family-Fun.png";
+
+    const gridEl = document.getElementById("grid");
+    const sizeSelect = document.getElementById("sizeSelect");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const movesEl = document.getElementById("moves");
+    const statusEl = document.getElementById("status");
+    const msgEl = document.getElementById("msg");
+
+    let size = Number(sizeSelect.value);
+    let order = [];
+    let solved = [];
+    let firstPick = null;
+    let moves = 0;
+
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+      }
+      return arr;
+    }
+
+    function isSolved(){
+      return order.every((v,i)=>v===solved[i]);
+    }
+
+    function applyOrder(){
+      const tiles = gridEl.querySelectorAll(".tile");
+      const bgSize = `${size * 100}% ${size * 100}%`;
+
+      tiles.forEach((tile, pos) => {
+        tile.classList.remove("selected");
+
+        const id = order[pos];
+        const x = id % size;
+        const y = Math.floor(id / size);
+
+        const xp = (size === 1) ? 0 : (x / (size - 1)) * 100;
+        const yp = (size === 1) ? 0 : (y / (size - 1)) * 100;
+
+        tile.style.backgroundImage = `url("${IMAGE_URL}")`;
+        tile.style.backgroundSize = bgSize;
+        tile.style.backgroundPosition = `${xp}% ${yp}%`;
+      });
+    }
+
+    function setCornerClasses(){
+      const tiles = [...gridEl.querySelectorAll(".tile")];
+      tiles.forEach(t => t.classList.remove("corner-tl","corner-tr","corner-bl","corner-br"));
+
+      const n = size * size;
+      if(n === 0) return;
+
+      const tl = 0;
+      const tr = size - 1;
+      const bl = (size - 1) * size;
+      const br = (size * size) - 1;
+
+      tiles[tl]?.classList.add("corner-tl");
+      tiles[tr]?.classList.add("corner-tr");
+      tiles[bl]?.classList.add("corner-bl");
+      tiles[br]?.classList.add("corner-br");
+    }
+
+    function buildGrid(){
+      size = Number(sizeSelect.value);
+      gridEl.style.setProperty("--size", size);
+
+      const n = size * size;
+      solved = [...Array(n).keys()];
+      order = [...solved];
+
+      gridEl.classList.remove("solved");
+      gridEl.innerHTML = "";
+      moves = 0;
+      movesEl.textContent = "0";
+      statusEl.textContent = "Ready when you are.";
+      msgEl.textContent = "";
+      firstPick = null;
+
+      for(let i=0;i<n;i++){
+        const t = document.createElement("button");
+        t.type = "button";
+        t.className = "tile";
+        t.dataset.pos = i;
+        t.addEventListener("click", onTile);
+        gridEl.appendChild(t);
+      }
+
+      setCornerClasses();
+      applyOrder();
+    }
+
+    function scramble(){
+      gridEl.classList.remove("solved");
+      msgEl.textContent = "";
+      firstPick = null;
+
+      do { shuffle(order); } while(isSolved());
+
+      moves = 0;
+      movesEl.textContent = "0";
+      statusEl.textContent = "Scrambled! Start swapping.";
+      applyOrder();
+    }
+
+    function reset(){
+      gridEl.classList.remove("solved");
+      order = [...solved];
+
+      moves = 0;
+      movesEl.textContent = "0";
+      statusEl.textContent = "Reset to solved.";
+      msgEl.textContent = "";
+      firstPick = null;
+
+      applyOrder();
+    }
+
+    function onTile(e){
+      const pos = +e.currentTarget.dataset.pos;
+      const tiles = [...gridEl.querySelectorAll(".tile")];
+
+      if(firstPick === null){
+        firstPick = pos;
+        tiles[pos].classList.add("selected");
+        statusEl.textContent = "Pick a second tile to swap.";
+        return;
+      }
+
+      if(firstPick === pos){
+        tiles[pos].classList.remove("selected");
+        firstPick = null;
+        statusEl.textContent = "Selection cleared.";
+        return;
+      }
+
+      [order[firstPick], order[pos]] = [order[pos], order[firstPick]];
+      tiles[firstPick].classList.remove("selected");
+      firstPick = null;
+
+      moves += 1;
+      movesEl.textContent = String(moves);
+
+      applyOrder();
+
+      if(isSolved()){
+        gridEl.classList.add("solved");
+        statusEl.textContent = "Solved!";
+        msgEl.innerHTML = `<span class="spark">🎉</span> <strong>Nice work!</strong>`;
+      } else {
+        gridEl.classList.remove("solved");
+        statusEl.textContent = "Keep going!";
+        msgEl.textContent = "";
+      }
+    }
+
+    sizeSelect.addEventListener("change", buildGrid);
+    shuffleBtn.addEventListener("click", scramble);
+    resetBtn.addEventListener("click", reset);
+
+    buildGrid();
+  </script>
+</body>
+</html>
