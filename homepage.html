@@ -122,7 +122,7 @@
     const crazyLaws = [
       {
         law: "In Alabama, it's illegal to walk around with an ice-cream cone in your back pocket.",
-        reason: "WHY? Because sneaky people once used this trick to lure horses away without ‘officially’ stealing them!"
+        reason: "WHY? Because sneaky people once used this trick to lure horses away without officially stealing them!"
       },
       {
         law: "In Arizona, it's illegal for a donkey to sleep in a bathtub.",
@@ -130,11 +130,31 @@
       },
       {
         law: "In Louisiana, you're not allowed to tie an alligator to a fire hydrant.",
-        reason: "WHY? Firefighters kept discovering gators chained to their hydrants — not ideal during emergencies!"
+        reason: "WHY? Fire hydrants must NEVER be blocked by anything — vehicles, objects, or animals. Firefighters need instant access in emergencies."
       },
       {
         law: "In Maine, it’s against the law to step out of a plane while it’s flying.",
         reason: "WHY? Believe it or not, someone tried it — so lawmakers decided to make things crystal clear!"
+      },
+      {
+        law: "In Alabama, it’s illegal to wear a fake moustache that causes laughter in church.",
+        reason: "WHY? Church services were meant to be calm and respectful, and prank disguises were banned to stop disruptions."
+      },
+      {
+        law: "If an elephant is tied to a parking meter, the parking fee must be paid.",
+        reason: "WHY? Circuses brought elephants into town, and leaders decided anything taking up street space should follow parking rules."
+      },
+      {
+        law: "In Baltimore, Maryland, it’s illegal to take a lion to the movies.",
+        reason: "WHY? Some animals are simply too dangerous — and distracting — for public places like theaters."
+      },
+      {
+        law: "In New Jersey, it’s illegal to slurp soup.",
+        reason: "WHY? Slurping was considered very rude in public, and this law encouraged good table manners."
+      },
+      {
+        law: "In Oklahoma, it’s illegal to take a bite out of someone else’s hamburger.",
+        reason: "WHY? Because grabbing someone else’s food — even as a joke — counts as stealing."
       }
     ];
 
@@ -154,11 +174,15 @@
       },
       {
         label: "Milkshake Tongue Twister",
-        text: "Try saying this 3 times fast: ‘Milky minty milkshakes make me mighty messy.’ Take turns!"
+        text: "Try saying this 3 times fast: ‘Milkshake makers mix mighty fast.’ Take turns!"
       },
       {
-        label: "Tumbleweed Tongue Twister",
-        text: "Try saying this 3 times fast: ‘Ten tiny tumbleweeds twirled together.’ Harder than it looks!"
+        label: "Hot Dog Tongue Twister",
+        text: "Try saying this 3 times fast: ‘Hot dogs hop from grill to bun.’ Take turns!"
+      },
+      {
+        label: "Burger Bite Tongue Twister",
+        text: "Try saying this 3 times fast: ‘Billy Bob’s burgers in buns bite big.’ Take turns!"
       },
       {
         label: "Billy Bob’s Memory Game",
@@ -174,10 +198,6 @@
       },
       {
         label: "Crazy U.S. Law!",
-        text: () => getRandomCrazyLaw()
-      },
-      {
-        label: "Another Crazy U.S. Law!",
         text: () => getRandomCrazyLaw()
       }
     ];
@@ -203,12 +223,9 @@
       let diff = targetAngle - base;
       if (diff < 0) diff += 360;
 
-      const extra = fullTurns * 360 + diff;
-      const stopAngle = currentRotation + extra;
+      const stopAngle = currentRotation + fullTurns * 360 + diff;
       currentRotation = stopAngle;
 
-      // spin
-      wheel.style.transition = "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)";
       wheel.style.transform = `rotate(${stopAngle}deg)`;
 
       wheel.addEventListener(
@@ -219,17 +236,6 @@
             typeof seg.text === "function" ? seg.text() : seg.text;
           resultDiv.innerHTML = `<strong>${seg.label}</strong><br>${resultText}`;
           isSpinning = false;
-
-          // Reset rotation so it never grows huge (prevents glitches after many spins)
-          setTimeout(() => {
-            wheel.style.transition = "none";
-            currentRotation = currentRotation % 360;
-            wheel.style.transform = `rotate(${currentRotation}deg)`;
-            // force reflow so next spin transition works
-            void wheel.offsetWidth;
-            wheel.style.transition =
-              "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)";
-          }, 50);
         },
         { once: true }
       );
@@ -238,3 +244,4 @@
 
 </body>
 </html>
+
