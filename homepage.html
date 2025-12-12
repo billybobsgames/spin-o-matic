@@ -158,8 +158,23 @@
       }
     ];
 
+    // --- NO-REPEAT "SHUFFLE BAG" FOR LAWS ---
+    let lawBag = [];
+
+    function nextLawIndex() {
+      if (lawBag.length === 0) {
+        lawBag = [...Array(crazyLaws.length).keys()];
+        // shuffle
+        for (let i = lawBag.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [lawBag[i], lawBag[j]] = [lawBag[j], lawBag[i]];
+        }
+      }
+      return lawBag.pop();
+    }
+
     function getRandomCrazyLaw() {
-      const item = crazyLaws[Math.floor(Math.random() * crazyLaws.length)];
+      const item = crazyLaws[nextLawIndex()];
       return `${item.law}<br><em>${item.reason}</em>`;
     }
 
@@ -208,12 +223,28 @@
     let isSpinning = false;
     let currentRotation = 0;
 
+    // --- NO-REPEAT "SHUFFLE BAG" FOR SEGMENTS ---
+    let segmentBag = [];
+
+    function nextSegmentIndex() {
+      if (segmentBag.length === 0) {
+        segmentBag = [...Array(segmentCount).keys()];
+        // shuffle
+        for (let i = segmentBag.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [segmentBag[i], segmentBag[j]] = [segmentBag[j], segmentBag[i]];
+        }
+      }
+      return segmentBag.pop();
+    }
+
     spinButton.addEventListener("click", () => {
       if (isSpinning) return;
       isSpinning = true;
       resultDiv.textContent = "";
 
-      const chosenIndex = Math.floor(Math.random() * segmentCount);
+      // Pick next segment without repeats until the bag refills
+      const chosenIndex = nextSegmentIndex();
       const fullTurns = 5;
 
       const chosenCenterAngle = chosenIndex * segmentAngle + segmentAngle / 2;
@@ -236,6 +267,15 @@
             typeof seg.text === "function" ? seg.text() : seg.text;
           resultDiv.innerHTML = `<strong>${seg.label}</strong><br>${resultText}`;
           isSpinning = false;
+
+          // Optional: keep rotation number from growing forever (prevents rare long-run glitches)
+          setTimeout(() => {
+            wheel.style.transition = "none";
+            currentRotation = currentRotation % 360;
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+            void wheel.offsetWidth; // force reflow
+            wheel.style.transition = "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)";
+          }, 50);
         },
         { once: true }
       );
