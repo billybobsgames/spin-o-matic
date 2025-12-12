@@ -75,6 +75,12 @@
       font-size: 0.9rem;
       color: #7a6c5d;
     }
+
+    .round {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: #7a6c5d;
+    }
   </style>
 </head>
 
@@ -108,6 +114,8 @@
       class="whirl-btn"
     >
 
+    <div id="roundInfo" class="round"></div>
+
     <div id="result" class="result"></div>
 
     <p class="tagline">Billy Bob's — tastes like happiness!</p>
@@ -117,6 +125,7 @@
     const wheel = document.getElementById("wheel");
     const spinButton = document.getElementById("spinButton");
     const resultDiv = document.getElementById("result");
+    const roundInfo = document.getElementById("roundInfo");
 
     // Pool of silly real US laws with reasons
     const crazyLaws = [
@@ -157,26 +166,6 @@
         reason: "WHY? Because grabbing someone else’s food — even as a joke — counts as stealing."
       }
     ];
-
-    // --- NO-REPEAT "SHUFFLE BAG" FOR LAWS ---
-    let lawBag = [];
-
-    function nextLawIndex() {
-      if (lawBag.length === 0) {
-        lawBag = [...Array(crazyLaws.length).keys()];
-        // shuffle
-        for (let i = lawBag.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [lawBag[i], lawBag[j]] = [lawBag[j], lawBag[i]];
-        }
-      }
-      return lawBag.pop();
-    }
-
-    function getRandomCrazyLaw() {
-      const item = crazyLaws[nextLawIndex()];
-      return `${item.law}<br><em>${item.reason}</em>`;
-    }
 
     const segments = [
       {
@@ -223,27 +212,56 @@
     let isSpinning = false;
     let currentRotation = 0;
 
-    // --- NO-REPEAT "SHUFFLE BAG" FOR SEGMENTS ---
+    // --- Utility: shuffle array in place ---
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // --- SEGMENT BAG: no repeats until all segments used, then reshuffle and continue ---
     let segmentBag = [];
+    let segmentRound = 0;
+
+    function refillSegmentBag() {
+      segmentBag = shuffle([...Array(segmentCount).keys()]);
+      segmentRound += 1;
+      roundInfo.textContent = `Round ${segmentRound} — ${segmentCount} spins to see every segment once.`;
+    }
 
     function nextSegmentIndex() {
-      if (segmentBag.length === 0) {
-        segmentBag = [...Array(segmentCount).keys()];
-        // shuffle
-        for (let i = segmentBag.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [segmentBag[i], segmentBag[j]] = [segmentBag[j], segmentBag[i]];
-        }
-      }
+      if (segmentBag.length === 0) refillSegmentBag();
       return segmentBag.pop();
     }
+
+    // --- LAW BAG: no repeats until laws used up; refills when empty (so it always has a law) ---
+    let lawBag = [];
+
+    function refillLawBag() {
+      lawBag = shuffle([...Array(crazyLaws.length).keys()]);
+    }
+
+    function nextLawIndex() {
+      if (lawBag.length === 0) refillLawBag();
+      return lawBag.pop();
+    }
+
+    function getRandomCrazyLaw() {
+      const item = crazyLaws[nextLawIndex()];
+      return `${item.law}<br><em>${item.reason}</em>`;
+    }
+
+    // Init bags on load
+    refillSegmentBag();
+    refillLawBag();
 
     spinButton.addEventListener("click", () => {
       if (isSpinning) return;
       isSpinning = true;
       resultDiv.textContent = "";
 
-      // Pick next segment without repeats until the bag refills
       const chosenIndex = nextSegmentIndex();
       const fullTurns = 5;
 
@@ -257,18 +275,18 @@
       const stopAngle = currentRotation + fullTurns * 360 + diff;
       currentRotation = stopAngle;
 
+      wheel.style.transition = "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)";
       wheel.style.transform = `rotate(${stopAngle}deg)`;
 
       wheel.addEventListener(
         "transitionend",
         () => {
           const seg = segments[chosenIndex];
-          const resultText =
-            typeof seg.text === "function" ? seg.text() : seg.text;
+          const resultText = typeof seg.text === "function" ? seg.text() : seg.text;
           resultDiv.innerHTML = `<strong>${seg.label}</strong><br>${resultText}`;
           isSpinning = false;
 
-          // Optional: keep rotation number from growing forever (prevents rare long-run glitches)
+          // Keep rotation number from growing forever (prevents rare long-run glitches)
           setTimeout(() => {
             wheel.style.transition = "none";
             currentRotation = currentRotation % 360;
@@ -284,4 +302,3 @@
 
 </body>
 </html>
-
