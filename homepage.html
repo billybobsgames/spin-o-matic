@@ -170,7 +170,7 @@
     function refillLawBag() {
       lawBag = shuffle([...Array(crazyLaws.length).keys()]);
     }
-    function nextLaw() {
+    function nextLawHTML() {
       if (lawBag.length === 0) refillLawBag();
       const item = crazyLaws[lawBag.pop()];
       return `<strong>Crazy U.S. Law!</strong><br>${item.law}<br><em>${item.reason}</em>`;
@@ -216,18 +216,17 @@
     function refillGameBag() {
       gameBag = shuffle([...Array(games.length).keys()]);
     }
-    function nextGame() {
+    function nextGameHTML() {
       if (gameBag.length === 0) refillGameBag();
       const g = games[gameBag.pop()];
       return `<strong>${g.label}</strong><br>${g.text}`;
     }
 
-    // Init bags
+    // Init
     refillLawBag();
     refillGameBag();
 
-    // Wheel spin animation still happens, but result selection is now:
-    // odd spins = game, even spins = law
+    // Spin state
     let isSpinning = false;
     let currentRotation = 0;
     let spinNumber = 0;
@@ -239,13 +238,13 @@
 
       spinNumber += 1;
 
-      // purely visual wheel spin (doesn't decide outcome)
-      const segmentCountVisual = 9;
-      const segmentAngleVisual = 360 / segmentCountVisual;
-      const randomVisualIndex = Math.floor(Math.random() * segmentCountVisual);
+      // Purely visual spin (does not decide result)
+      const visualSlices = 9;
+      const visualAngle = 360 / visualSlices;
+      const visualIndex = Math.floor(Math.random() * visualSlices);
 
       const fullTurns = 5;
-      const chosenCenterAngle = randomVisualIndex * segmentAngleVisual + segmentAngleVisual / 2;
+      const chosenCenterAngle = visualIndex * visualAngle + visualAngle / 2;
       const targetAngle = 360 - chosenCenterAngle;
 
       const base = currentRotation % 360;
@@ -261,13 +260,13 @@
       wheel.addEventListener(
         "transitionend",
         () => {
-          // Every 2nd spin = law
-          const html = (spinNumber % 2 === 0) ? nextLaw() : nextGame();
+          // Every 2nd spin = law (2,4,6,8...)
+          const html = (spinNumber % 2 === 0) ? nextLawHTML() : nextGameHTML();
           resultDiv.innerHTML = html;
 
           isSpinning = false;
 
-          // Keep rotation number from growing forever
+          // Prevent rotation number growing huge over time
           setTimeout(() => {
             wheel.style.transition = "none";
             currentRotation = currentRotation % 360;
