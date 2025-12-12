@@ -70,15 +70,27 @@
       color: #2A4C7F;
     }
 
+    .bonus-law {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(42, 76, 127, 0.15);
+      font-size: 0.95rem;
+      line-height: 1.35;
+      color: #2A4C7F;
+      text-align: left;
+    }
+
+    .bonus-law strong {
+      display: block;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
     .tagline {
       margin-top: 12px;
       font-size: 0.9rem;
-      color: #7a6c5d;
-    }
-
-    .round {
-      margin-top: 8px;
-      font-size: 0.85rem;
       color: #7a6c5d;
     }
   </style>
@@ -114,9 +126,8 @@
       class="whirl-btn"
     >
 
-    <div id="roundInfo" class="round"></div>
-
     <div id="result" class="result"></div>
+    <div id="bonusLaw" class="bonus-law" style="display:none;"></div>
 
     <p class="tagline">Billy Bob's — tastes like happiness!</p>
   </div>
@@ -125,22 +136,12 @@
     const wheel = document.getElementById("wheel");
     const spinButton = document.getElementById("spinButton");
     const resultDiv = document.getElementById("result");
-    const roundInfo = document.getElementById("roundInfo");
+    const bonusLawDiv = document.getElementById("bonusLaw");
 
-    // ---------- Helpers ----------
-    function shuffle(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
+    // Show a bonus law every other spin:
+    const BONUS_LAW_EVERY_N_SPINS = 2;
 
-    function hr() {
-      return "<hr style='border:none;border-top:1px solid #ddd;margin:10px 0;'>";
-    }
-
-    // ---------- Pools ----------
+    // ------------------ Law pool ------------------
     const crazyLaws = [
       {
         law: "In Alabama, it's illegal to walk around with an ice-cream cone in your back pocket.",
@@ -180,25 +181,29 @@
       }
     ];
 
-    // Shared tongue-twister pool (so your 3 tongue-twister segments don't repeat each other)
-    const tongueTwisters = [
-      "Milkshake makers mix mighty fast.",
-      "Hot dogs hop from grill to bun.",
-      "Billy Bob’s burgers in buns bite big."
-      // Add more here later!
-    ];
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
 
-    // States challenge pool (so “States Showdown” varies instead of always the same prompt)
-    const stateChallenges = [
-      "Take turns naming U.S. states — no repeats! First person to hesitate is out.",
-      "Take turns naming U.S. state capitals — no repeats! (You can pass once.)",
-      "Take turns naming U.S. states that start with a vowel (A, E, I, O, U). No repeats!",
-      "Take turns naming U.S. states with TWO words (like New York). No repeats!",
-      "Name as many U.S. states as you can in 20 seconds as a table — go!"
-      // Add more here later!
-    ];
+    // Law shuffle-bag (no repeats until used up, then refills)
+    let lawBag = [];
+    function refillLawBag() {
+      lawBag = shuffle([...Array(crazyLaws.length).keys()]);
+    }
+    function nextLawIndex() {
+      if (lawBag.length === 0) refillLawBag();
+      return lawBag.pop();
+    }
+    function getNextLawHTML() {
+      const item = crazyLaws[nextLawIndex()];
+      return `${item.law}<br><em>${item.reason}</em>`;
+    }
 
-    // ---------- Segments ----------
+    // ------------------ Segments (8 games + 1 "law" slice) ------------------
     const segments = [
       {
         label: "Ice Cream Flavour Frenzy",
@@ -210,15 +215,15 @@
       },
       {
         label: "Milkshake Tongue Twister",
-        text: () => getNextTwistersHTML()
+        text: "Try saying this 3 times fast: ‘Milkshake makers mix mighty fast.’ Take turns!"
       },
       {
         label: "Hot Dog Tongue Twister",
-        text: () => getNextTwistersHTML()
+        text: "Try saying this 3 times fast: ‘Hot dogs hop from grill to bun.’ Take turns!"
       },
       {
         label: "Burger Bite Tongue Twister",
-        text: () => getNextTwistersHTML()
+        text: "Try saying this 3 times fast: ‘Billy Bob’s burgers in buns bite big.’ Take turns!"
       },
       {
         label: "Billy Bob’s Memory Game",
@@ -226,7 +231,7 @@
       },
       {
         label: "States Showdown",
-        text: () => getNextStateChallengesHTML()
+        text: "Take turns naming U.S. states — no repeats! How long can your table last?"
       },
       {
         label: "Guess the Food",
@@ -234,103 +239,60 @@
       },
       {
         label: "Crazy U.S. Law!",
-        text: () => getNextLawsHTML()
+        text: () => getNextLawHTML()
       }
     ];
 
     const segmentCount = segments.length;
     const segmentAngle = 360 / segmentCount;
 
-    // Pro-rata: how many items to show per hit of a pooled segment
-    function itemsPerHit(poolLength) {
-      return Math.max(1, Math.round(poolLength / segmentCount));
-    }
-
-    // ---------- Segment bag (no repeats until all segments used; then reshuffle and continue) ----------
+    // Segment shuffle-bag (no repeats until all 9 slices used, then refills)
     let segmentBag = [];
-    let round = 0;
-
     function refillSegmentBag() {
       segmentBag = shuffle([...Array(segmentCount).keys()]);
-      round += 1;
-      roundInfo.textContent = `Round ${round} — you’ll see every segment once in ${segmentCount} spins.`;
     }
-
     function nextSegmentIndex() {
       if (segmentBag.length === 0) refillSegmentBag();
       return segmentBag.pop();
     }
 
-    // ---------- Law bag (no repeats until used up; refills when empty) ----------
-    let lawBag = [];
-    function refillLawBag() {
-      lawBag = shuffle([...Array(crazyLaws.length).keys()]);
-    }
-    function nextLawIndex() {
-      if (lawBag.length === 0) refillLawBag();
-      return lawBag.pop();
-    }
-    function getNextLawsHTML() {
-      const count = itemsPerHit(crazyLaws.length);
-      const picks = [];
-      for (let i = 0; i < count; i++) {
-        const item = crazyLaws[nextLawIndex()];
-        picks.push(`${item.law}<br><em>${item.reason}</em>`);
-      }
-      return picks.join(hr());
-    }
-
-    // ---------- Tongue twister bag (shared across all tongue twister segments) ----------
-    let twisterBag = [];
-    function refillTwisterBag() {
-      twisterBag = shuffle([...Array(tongueTwisters.length).keys()]);
-    }
-    function nextTwisterIndex() {
-      if (twisterBag.length === 0) refillTwisterBag();
-      return twisterBag.pop();
-    }
-    function getNextTwistersHTML() {
-      const count = itemsPerHit(tongueTwisters.length);
-      const picks = [];
-      for (let i = 0; i < count; i++) {
-        const t = tongueTwisters[nextTwisterIndex()];
-        picks.push(`Try saying this 3 times fast: ‘${t}’`);
-      }
-      return `${picks.join(hr())}<br>Take turns!`;
-    }
-
-    // ---------- State challenge bag ----------
-    let stateBag = [];
-    function refillStateBag() {
-      stateBag = shuffle([...Array(stateChallenges.length).keys()]);
-    }
-    function nextStateIndex() {
-      if (stateBag.length === 0) refillStateBag();
-      return stateBag.pop();
-    }
-    function getNextStateChallengesHTML() {
-      const count = itemsPerHit(stateChallenges.length);
-      const picks = [];
-      for (let i = 0; i < count; i++) {
-        picks.push(stateChallenges[nextStateIndex()]);
-      }
-      return picks.join(hr());
-    }
-
     // Init bags
     refillSegmentBag();
     refillLawBag();
-    refillTwisterBag();
-    refillStateBag();
 
-    // ---------- Spin logic ----------
+    // Spin state
     let isSpinning = false;
     let currentRotation = 0;
+    let spinNumber = 0;
+
+    function showBonusLawIfNeeded(landedOnLawSegment) {
+      // Show laws every other spin, PLUS always show if they landed on the law slice.
+      const shouldShowBecauseEveryOther = (spinNumber % BONUS_LAW_EVERY_N_SPINS === 0);
+      const shouldShow = landedOnLawSegment || shouldShowBecauseEveryOther;
+
+      if (!shouldShow) {
+        bonusLawDiv.style.display = "none";
+        bonusLawDiv.innerHTML = "";
+        return;
+      }
+
+      // If the main segment already *is* a law, don't repeat the exact same law:
+      // We’ll pull the next one for the bonus.
+      const lawHTML = getNextLawHTML();
+
+      bonusLawDiv.style.display = "block";
+      bonusLawDiv.innerHTML = `<strong>Bonus Crazy Law!</strong>${lawHTML}`;
+    }
 
     spinButton.addEventListener("click", () => {
       if (isSpinning) return;
       isSpinning = true;
+
       resultDiv.textContent = "";
+      bonusLawDiv.style.display = "none";
+      bonusLawDiv.innerHTML = "";
+
+      spinNumber += 1;
 
       const chosenIndex = nextSegmentIndex();
       const fullTurns = 5;
@@ -353,7 +315,12 @@
         () => {
           const seg = segments[chosenIndex];
           const resultText = typeof seg.text === "function" ? seg.text() : seg.text;
+
           resultDiv.innerHTML = `<strong>${seg.label}</strong><br>${resultText}`;
+
+          const landedOnLawSegment = (seg.label === "Crazy U.S. Law!");
+          showBonusLawIfNeeded(landedOnLawSegment);
+
           isSpinning = false;
 
           // Prevent rotation number growing huge over time
