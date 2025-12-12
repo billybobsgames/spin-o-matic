@@ -70,24 +70,6 @@
       color: #2A4C7F;
     }
 
-    .bonus-law {
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(42, 76, 127, 0.15);
-      font-size: 0.95rem;
-      line-height: 1.35;
-      color: #2A4C7F;
-      text-align: left;
-    }
-
-    .bonus-law strong {
-      display: block;
-      margin-bottom: 6px;
-      text-align: center;
-    }
-
     .tagline {
       margin-top: 12px;
       font-size: 0.9rem;
@@ -127,7 +109,6 @@
     >
 
     <div id="result" class="result"></div>
-    <div id="bonusLaw" class="bonus-law" style="display:none;"></div>
 
     <p class="tagline">Billy Bob's — tastes like happiness!</p>
   </div>
@@ -136,12 +117,16 @@
     const wheel = document.getElementById("wheel");
     const spinButton = document.getElementById("spinButton");
     const resultDiv = document.getElementById("result");
-    const bonusLawDiv = document.getElementById("bonusLaw");
 
-    // Show a bonus law every other spin:
-    const BONUS_LAW_EVERY_N_SPINS = 2;
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
 
-    // ------------------ Law pool ------------------
+    // --- Crazy Laws (no repeats until used up; then refills) ---
     const crazyLaws = [
       {
         law: "In Alabama, it's illegal to walk around with an ice-cream cone in your back pocket.",
@@ -181,30 +166,18 @@
       }
     ];
 
-    function shuffle(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    // Law shuffle-bag (no repeats until used up, then refills)
     let lawBag = [];
     function refillLawBag() {
       lawBag = shuffle([...Array(crazyLaws.length).keys()]);
     }
-    function nextLawIndex() {
+    function nextLaw() {
       if (lawBag.length === 0) refillLawBag();
-      return lawBag.pop();
-    }
-    function getNextLawHTML() {
-      const item = crazyLaws[nextLawIndex()];
-      return `${item.law}<br><em>${item.reason}</em>`;
+      const item = crazyLaws[lawBag.pop()];
+      return `<strong>Crazy U.S. Law!</strong><br>${item.law}<br><em>${item.reason}</em>`;
     }
 
-    // ------------------ Segments (8 games + 1 "law" slice) ------------------
-    const segments = [
+    // --- 8 Games (no repeats until used up; then refills) ---
+    const games = [
       {
         label: "Ice Cream Flavour Frenzy",
         text: "Take turns naming ice cream flavours — no repeats! First person to hesitate is out."
@@ -236,68 +209,43 @@
       {
         label: "Guess the Food",
         text: "Someone secretly picks a Billy Bob’s food item. Everyone else asks yes/no questions until someone guesses it!"
-      },
-      {
-        label: "Crazy U.S. Law!",
-        text: () => getNextLawHTML()
       }
     ];
 
-    const segmentCount = segments.length;
-    const segmentAngle = 360 / segmentCount;
-
-    // Segment shuffle-bag (no repeats until all 9 slices used, then refills)
-    let segmentBag = [];
-    function refillSegmentBag() {
-      segmentBag = shuffle([...Array(segmentCount).keys()]);
+    let gameBag = [];
+    function refillGameBag() {
+      gameBag = shuffle([...Array(games.length).keys()]);
     }
-    function nextSegmentIndex() {
-      if (segmentBag.length === 0) refillSegmentBag();
-      return segmentBag.pop();
+    function nextGame() {
+      if (gameBag.length === 0) refillGameBag();
+      const g = games[gameBag.pop()];
+      return `<strong>${g.label}</strong><br>${g.text}`;
     }
 
     // Init bags
-    refillSegmentBag();
     refillLawBag();
+    refillGameBag();
 
-    // Spin state
+    // Wheel spin animation still happens, but result selection is now:
+    // odd spins = game, even spins = law
     let isSpinning = false;
     let currentRotation = 0;
     let spinNumber = 0;
 
-    function showBonusLawIfNeeded(landedOnLawSegment) {
-      // Show laws every other spin, PLUS always show if they landed on the law slice.
-      const shouldShowBecauseEveryOther = (spinNumber % BONUS_LAW_EVERY_N_SPINS === 0);
-      const shouldShow = landedOnLawSegment || shouldShowBecauseEveryOther;
-
-      if (!shouldShow) {
-        bonusLawDiv.style.display = "none";
-        bonusLawDiv.innerHTML = "";
-        return;
-      }
-
-      // If the main segment already *is* a law, don't repeat the exact same law:
-      // We’ll pull the next one for the bonus.
-      const lawHTML = getNextLawHTML();
-
-      bonusLawDiv.style.display = "block";
-      bonusLawDiv.innerHTML = `<strong>Bonus Crazy Law!</strong>${lawHTML}`;
-    }
-
     spinButton.addEventListener("click", () => {
       if (isSpinning) return;
       isSpinning = true;
-
       resultDiv.textContent = "";
-      bonusLawDiv.style.display = "none";
-      bonusLawDiv.innerHTML = "";
 
       spinNumber += 1;
 
-      const chosenIndex = nextSegmentIndex();
-      const fullTurns = 5;
+      // purely visual wheel spin (doesn't decide outcome)
+      const segmentCountVisual = 9;
+      const segmentAngleVisual = 360 / segmentCountVisual;
+      const randomVisualIndex = Math.floor(Math.random() * segmentCountVisual);
 
-      const chosenCenterAngle = chosenIndex * segmentAngle + segmentAngle / 2;
+      const fullTurns = 5;
+      const chosenCenterAngle = randomVisualIndex * segmentAngleVisual + segmentAngleVisual / 2;
       const targetAngle = 360 - chosenCenterAngle;
 
       const base = currentRotation % 360;
@@ -313,17 +261,13 @@
       wheel.addEventListener(
         "transitionend",
         () => {
-          const seg = segments[chosenIndex];
-          const resultText = typeof seg.text === "function" ? seg.text() : seg.text;
-
-          resultDiv.innerHTML = `<strong>${seg.label}</strong><br>${resultText}`;
-
-          const landedOnLawSegment = (seg.label === "Crazy U.S. Law!");
-          showBonusLawIfNeeded(landedOnLawSegment);
+          // Every 2nd spin = law
+          const html = (spinNumber % 2 === 0) ? nextLaw() : nextGame();
+          resultDiv.innerHTML = html;
 
           isSpinning = false;
 
-          // Prevent rotation number growing huge over time
+          // Keep rotation number from growing forever
           setTimeout(() => {
             wheel.style.transition = "none";
             currentRotation = currentRotation % 360;
