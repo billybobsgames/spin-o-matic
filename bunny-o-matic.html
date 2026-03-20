@@ -1,699 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bunny-O-Matic</title>
-  <link href="https://fonts.googleapis.com/css2?family=Atma:wght@400;600;700&display=swap" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bunny-O-Matic</title>
 
-  <style>
-    :root {
-      --panel: rgba(248, 244, 226, 0.96);
-      --green-bg: #4f7f3f;
-      --green-dark: #2f6b3a;
-      --brown: #4f3117;
-      --orange: #c86b3c;
-      --shadow: 0 10px 24px rgba(69, 49, 22, 0.18);
-      --soft-border: #f1d98d;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Atma:wght@400;600;700&display=swap" rel="stylesheet">
 
-    * { box-sizing: border-box; }
+<style>
+body {
+  margin:0;
+  font-family: 'Atma', cursive;
+  background:#4f7f3f;
+}
 
-    body {
-      margin: 0;
-      font-family: "Atma", cursive;
-      background: var(--green-bg);
-      color: var(--brown);
-    }
+.game-shell{
+  max-width:900px;
+  margin:10px auto;
+  background:linear-gradient(#edf0df,#c8d99b);
+  border-radius:24px;
+  padding:10px;
+}
 
-    .page {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 18px;
-    }
+/* HEADER */
+.header img{
+  width:100%;
+}
 
-    .game-shell {
-      background:
-        linear-gradient(180deg, #edf0df 0%, #e7edd5 34%, #c8d99b 34%, #a7c879 100%);
-      border: 4px solid rgba(255, 243, 205, 0.8);
-      border-radius: 28px;
-      overflow: hidden;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
-      min-height: calc(100vh - 36px);
-      position: relative;
-    }
+/* BUNNY + TEXT */
+.top{
+  text-align:center;
+  padding:10px;
+}
 
-    .cloud {
-      position: absolute;
-      background: rgba(255,255,255,0.25);
-      border-radius: 999px;
-      filter: blur(1px);
-      pointer-events: none;
-    }
+.bunny{
+  width:120px;
+}
 
-    .cloud.one {
-      width: 180px;
-      height: 44px;
-      left: 70px;
-      top: 45px;
-    }
+.speech{
+  background:#f8f4e2;
+  border-radius:18px;
+  padding:14px;
+  margin-top:8px;
+}
 
-    .cloud.two {
-      width: 140px;
-      height: 38px;
-      right: 78px;
-      top: 80px;
-    }
+.speech h2{
+  color:#c54f43;
+  margin:0;
+  font-size:1.5rem;
+}
 
-    .header-wrap {
-      padding: 24px 24px 10px;
-      display: flex;
-      justify-content: center;
-    }
+.speech p{
+  font-size:0.95rem;
+  margin-top:6px;
+}
 
-    .header-art {
-      max-width: 1100px;
-      width: 100%;
-      display: block;
-      filter: drop-shadow(0 6px 0 rgba(89, 56, 17, 0.08));
-      user-select: none;
-      pointer-events: none;
-    }
+/* INSTRUCTION BOX */
+.instructions{
+  background:#f8f4e2;
+  border-radius:18px;
+  padding:12px;
+  text-align:center;
+  margin:10px 0;
+}
 
-    .intro-row {
-      display: grid;
-      grid-template-columns: 190px 1fr;
-      gap: 22px;
-      align-items: center;
-      padding: 0 28px 18px;
-    }
+.instructions h1{
+  margin:0;
+  font-size:1.6rem;
+  color:#2f6b3a;
+}
 
-    .host-wrap {
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-    }
+.instructions p{
+  font-size:0.9rem;
+}
 
-    .host-bunny {
-      width: 150px;
-      max-width: 100%;
-      display: block;
-      filter: drop-shadow(0 10px 18px rgba(40, 24, 9, 0.18));
-    }
+/* BUTTONS */
+button{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border:none;
+  border-radius:999px;
+  font-size:1rem;
+}
 
-    .speech {
-      background: var(--panel);
-      border: 4px solid var(--soft-border);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      padding: 18px 24px;
-      text-align: center;
-    }
+.start{background:#f3c758;}
+.reset{background:#d64f48;color:white;}
 
-    .speech h2 {
-      margin: 0 0 8px;
-      font-family: "GoodDog New", "Atma", cursive;
-      font-size: 2rem;
-      line-height: 1;
-      color: #c54f43;
-      font-weight: 700;
-    }
+/* STATUS */
+.status{
+  background:#fff5dc;
+  padding:8px;
+  border-radius:999px;
+  text-align:center;
+  font-size:0.85rem;
+  margin-top:6px;
+}
 
-    .speech p {
-      margin: 0;
-      font-family: "Atma", cursive;
-      font-size: 1.05rem;
-      line-height: 1.2;
-    }
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
 
-    .main-panel {
-      padding: 0 28px 28px;
-    }
+.burrow{
+  position:relative;
+}
 
-    .instruction-card {
-      background: var(--panel);
-      border: 4px solid var(--soft-border);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      padding: 14px 18px 16px;
-      max-width: 760px;
-      margin: 0 auto 16px;
-      text-align: center;
-    }
+.burrow img{
+  width:100%;
+}
 
-    .instruction-card .eyebrow {
-      font-family: "Atma", cursive;
-      font-size: 0.9rem;
-      line-height: 1;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--orange);
-      margin-bottom: 4px;
-      font-weight: 700;
-    }
+.hidden{
+  display:none;
+}
 
-    .instruction-card h1 {
-      margin: 0 0 6px;
-      font-family: "American Purpose", "Atma", cursive;
-      font-size: clamp(2rem, 2vw + 1rem, 3rem);
-      line-height: 0.95;
-      color: var(--green-dark);
-      text-transform: uppercase;
-    }
+.reveal{
+  position:absolute;
+  top:10%;
+  left:10%;
+  width:80%;
+}
 
-    .instruction-card p {
-      margin: 0;
-      font-family: "Atma", cursive;
-      font-size: 1rem;
-      line-height: 1.15;
-    }
+/* RESULT */
+.result{
+  background:#f8f4e2;
+  border-radius:18px;
+  padding:12px;
+  text-align:center;
+  margin-top:12px;
+}
 
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin: 0 0 12px;
-    }
-
-    button {
-      border: none;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    .btn {
-      min-width: 168px;
-      padding: 14px 24px;
-      border-radius: 999px;
-      font-family: "American Purpose", "Atma", cursive;
-      font-size: 1.05rem;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      box-shadow: 0 7px 0 rgba(95, 59, 19, 0.16);
-      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
-    }
-
-    .btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 9px 0 rgba(95, 59, 19, 0.14);
-    }
-
-    .btn:active:not(:disabled) {
-      transform: translateY(2px);
-      box-shadow: 0 4px 0 rgba(95, 59, 19, 0.16);
-    }
-
-    .btn:disabled {
-      opacity: 0.58;
-      cursor: not-allowed;
-    }
-
-    .btn-primary {
-      background: linear-gradient(180deg, #f3c758 0%, #e5a62d 100%);
-      border: 3px solid #ffe8ac;
-      color: #5b3514;
-    }
-
-    .btn-secondary {
-      background: linear-gradient(180deg, #ea7664 0%, #d64f48 100%);
-      border: 3px solid #ffd4c4;
-      color: #fff6e1;
-    }
-
-    .status-row {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    .status-pill,
-    .score-pill {
-      background: rgba(255, 249, 231, 0.96);
-      border: 3px solid rgba(255, 233, 174, 0.92);
-      border-radius: 999px;
-      padding: 10px 16px;
-      box-shadow: 0 6px 14px rgba(64, 46, 21, 0.1);
-      font-family: "Atma", cursive;
-      font-size: 0.95rem;
-      line-height: 1;
-      font-weight: 700;
-    }
-
-    .burrow-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(170px, 1fr));
-      gap: 20px;
-      max-width: 920px;
-      margin: 0 auto;
-    }
-
-    .burrow {
-      position: relative;
-      aspect-ratio: 1 / 1;
-      background: transparent;
-      border-radius: 999px;
-      padding: 0;
-      overflow: visible;
-      transition: transform 0.16s ease;
-    }
-
-    .burrow:not(.disabled):not(.revealed):hover {
-      transform: translateY(-3px) scale(1.02);
-    }
-
-    .burrow.disabled {
-      cursor: default;
-    }
-
-    .burrow .hole {
-      position: absolute;
-      inset: 0;
-      background-image: url("https://www.billybobsparlour.com/wp-content/uploads/2026/03/Burrow.png");
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .burrow.revealed .hole {
-      opacity: 0.2;
-      transform: scale(0.92);
-      transition: 0.28s ease;
-    }
-
-    .burrow-content {
-      position: absolute;
-      inset: 14% 12% 12%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      opacity: 0;
-      transform: translateY(16px) scale(0.84);
-      transition: opacity 0.28s ease, transform 0.32s ease;
-      pointer-events: none;
-    }
-
-    .burrow.revealed .burrow-content {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-
-    .burrow-content img {
-      max-width: 78%;
-      max-height: 78%;
-      filter: drop-shadow(0 8px 10px rgba(0,0,0,0.16));
-    }
-
-    .mini-label {
-      margin-top: 8px;
-      background: rgba(255, 250, 232, 0.98);
-      border-radius: 999px;
-      padding: 5px 10px 6px;
-      font-family: "Atma", cursive;
-      font-size: 0.84rem;
-      line-height: 1;
-      font-weight: 700;
-      color: #5c3d19;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.08);
-    }
-
-    .result-card {
-      background: rgba(255, 244, 228, 0.96);
-      border: 4px solid var(--soft-border);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      padding: 16px 22px;
-      max-width: 760px;
-      margin: 22px auto 0;
-      text-align: center;
-    }
-
-    .result-card h3 {
-      margin: 0 0 4px;
-      font-family: "American Purpose", "Atma", cursive;
-      font-size: clamp(1.8rem, 1.2rem + 1.2vw, 2.4rem);
-      line-height: 0.95;
-      color: var(--green-dark);
-      text-transform: uppercase;
-    }
-
-    .result-card p {
-      margin: 0;
-      font-family: "Atma", cursive;
-      font-size: 1rem;
-      line-height: 1.15;
-    }
-
-    .result-card.win {
-      background: linear-gradient(180deg, rgba(255,248,226,0.98), rgba(255,236,188,0.96));
-    }
-
-    .result-card.lose {
-      background: linear-gradient(180deg, rgba(255,248,226,0.98), rgba(255,229,214,0.96));
-    }
-
-    @media (max-width: 980px) {
-      .intro-row {
-        grid-template-columns: 1fr;
-      }
-
-      .host-wrap {
-        justify-content: center;
-      }
-
-      .host-bunny {
-        width: 130px;
-      }
-    }
-
-    @media (max-width: 720px) {
-      .page {
-        padding: 10px;
-      }
-
-      .header-wrap,
-      .intro-row,
-      .main-panel {
-        padding-left: 14px;
-        padding-right: 14px;
-      }
-
-      .burrow-grid {
-        grid-template-columns: repeat(2, minmax(130px, 1fr));
-        gap: 14px;
-      }
-
-      .instruction-card h1 {
-        font-size: 2.2rem;
-      }
-
-      .speech h2 {
-        font-size: 1.7rem;
-      }
-    }
-
-    @media (max-width: 520px) {
-      .burrow-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .controls .btn {
-        width: 100%;
-      }
-
-      .status-row {
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-  </style>
+</style>
 </head>
+
 <body>
-  <div class="page">
-    <div class="game-shell">
-      <div class="cloud one"></div>
-      <div class="cloud two"></div>
 
-      <div class="header-wrap">
-        <img
-          class="header-art"
-          src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Bunny-o-matic-header.png"
-          alt="Bunny-O-Matic"
-        />
-      </div>
+<div class="game-shell">
 
-      <div class="intro-row">
-        <div class="host-wrap">
-          <img
-            class="host-bunny"
-            src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Host-bunny.png"
-            alt="Bunny host"
-          />
-        </div>
+<!-- HEADER -->
+<div class="header">
+<img src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Bunny-o-matic-header.png">
+</div>
 
-        <div class="speech">
-          <h2>Hey there, bunny buddy!</h2>
-          <p>
-            Can you find my carrot?<br />
-            You’ve got 3 picks — choose your burrows wisely!<br />
-            Oh — and keep an eye out for the golden egg… that’s worth bonus points!
-          </p>
-        </div>
-      </div>
+<!-- BUNNY -->
+<div class="top">
+<img class="bunny" src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Host-bunny.png">
 
-      <div class="main-panel">
-        <section class="instruction-card">
-          <div class="eyebrow">Pick 3 burrows</div>
-          <h1 id="headline">Choose 3 burrows.</h1>
-          <p id="subline">
-            Find the <strong>carrot</strong> to win. The golden egg is just a <strong>bonus</strong> if you happen to uncover it.
-          </p>
-        </section>
+<div class="speech">
+<h2>Hey there, bunny buddy!</h2>
+<p>
+Can you find my carrot?<br>
+You’ve got 3 picks — choose your burrows wisely!<br>
+Oh — and keep an eye out for the golden egg… that’s worth bonus points!
+</p>
+</div>
+</div>
 
-        <div class="controls">
-          <button class="btn btn-primary" id="startBtn">Start Game</button>
-          <button class="btn btn-secondary" id="resetBtn">New Round</button>
-        </div>
+<!-- INSTRUCTIONS -->
+<div class="instructions">
+<h1>Choose 3 burrows</h1>
+<p>Find the <b>carrot</b> to win. The golden egg is a bonus!</p>
+</div>
 
-        <div class="status-row">
-          <div class="status-pill" id="statusText">Press Start Game to begin your three picks.</div>
-          <div class="score-pill" id="scoreText">Wins: 0 · Golden eggs: 0 · Picks left: 3</div>
-        </div>
+<!-- BUTTONS -->
+<button class="start" onclick="startGame()">START GAME</button>
+<button class="reset" onclick="resetGame()">NEW ROUND</button>
 
-        <section class="burrow-grid" id="burrowGrid" aria-label="Burrow choices"></section>
+<div class="status" id="status">Press Start Game to begin</div>
+<div class="status" id="score">Wins: 0 • Eggs: 0 • Picks: 3</div>
 
-        <section class="result-card" id="resultCard">
-          <div>
-            <h3>Ready to play?</h3>
-            <p>You get 3 picks each round. Find the carrot to win. If you spot the golden egg along the way, that’s a bonus extra.</p>
-          </div>
-        </section>
-      </div>
-    </div>
-  </div>
+<!-- GRID -->
+<div class="grid" id="grid"></div>
 
-  <script>
-    const assetUrls = {
-      carrot: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png",
-      goldenEgg: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png",
-      straw: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png"
-    };
+<!-- RESULT -->
+<div class="result" id="result">
+Ready to play? Pick 3 burrows!
+</div>
 
-    const burrowGrid = document.getElementById("burrowGrid");
-    const startBtn = document.getElementById("startBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const statusText = document.getElementById("statusText");
-    const scoreText = document.getElementById("scoreText");
-    const resultCard = document.getElementById("resultCard");
-    const headline = document.getElementById("headline");
-    const subline = document.getElementById("subline");
+</div>
 
-    let state = "idle";
-    let winningIndex = 0;
-    let bonusIndex = 1;
-    let wins = 0;
-    let bonusWins = 0;
-    let picksLeft = 3;
+<script>
 
-    const loseLines = [
-      "Oops! Just straw in this burrow.",
-      "Nope — Bunny left this one empty.",
-      "Only straw here, partner.",
-      "Not this burrow. Keep hunting!"
-    ];
+let carrot, egg;
+let picks=3;
+let wins=0;
+let eggs=0;
+let active=false;
 
-    function createBurrows() {
-      burrowGrid.innerHTML = "";
-      for (let index = 0; index < 6; index++) {
-        const button = document.createElement("button");
-        button.className = "burrow disabled";
-        button.type = "button";
-        button.dataset.index = index;
-        button.setAttribute("aria-label", `Burrow ${index + 1}`);
-        button.innerHTML = `
-          <span class="hole"></span>
-          <span class="burrow-content"></span>
-        `;
-        button.addEventListener("click", () => chooseBurrow(index));
-        burrowGrid.appendChild(button);
-      }
-    }
+const grid=document.getElementById("grid");
 
-    function updateScore() {
-      scoreText.textContent = `Wins: ${wins} · Golden eggs: ${bonusWins} · Picks left: ${picksLeft}`;
-    }
+function build(){
+  grid.innerHTML="";
+  for(let i=0;i<6;i++){
+    let div=document.createElement("div");
+    div.className="burrow";
+    div.innerHTML=`
+      <img src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Burrow.png">
+      <img class="reveal hidden" id="r${i}">
+    `;
+    div.onclick=()=>pick(i);
+    grid.appendChild(div);
+  }
+}
 
-    function setStatus(text) {
-      statusText.textContent = text;
-    }
+function startGame(){
+  carrot=Math.floor(Math.random()*6);
+  do{ egg=Math.floor(Math.random()*6);}while(egg===carrot);
+  picks=3;
+  active=true;
+  document.getElementById("status").innerText="Pick a burrow!";
+  updateScore();
+}
 
-    function setResult(title, body, kind = "") {
-      resultCard.className = `result-card ${kind}`.trim();
-      resultCard.innerHTML = `
-        <div>
-          <h3>${title}</h3>
-          <p>${body}</p>
-        </div>
-      `;
-    }
+function pick(i){
+  if(!active)return;
 
-    function revealAsset(burrow, imageUrl, label) {
-      burrow.classList.add("revealed");
-      burrow.querySelector(".burrow-content").innerHTML = `
-        <img src="${imageUrl}" alt="${label}">
-        <div class="mini-label">${label}</div>
-      `;
-    }
+  let img=document.getElementById("r"+i);
+  img.classList.remove("hidden");
 
-    function resetBurrowFaces() {
-      document.querySelectorAll(".burrow").forEach((burrow) => {
-        burrow.className = "burrow disabled";
-        burrow.querySelector(".burrow-content").innerHTML = "";
-      });
-    }
+  if(i===carrot){
+    img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png";
+    wins++;
+    document.getElementById("result").innerText="You found the carrot!";
+    end();
+    return;
+  }
 
-    function rerollPositions() {
-      winningIndex = Math.floor(Math.random() * 6);
-      do {
-        bonusIndex = Math.floor(Math.random() * 6);
-      } while (bonusIndex === winningIndex);
-    }
+  if(i===egg){
+    img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png";
+    eggs++;
+  } else {
+    img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png";
+  }
 
-    function resetRound(fullReset = false) {
-      state = "idle";
-      picksLeft = 3;
-      rerollPositions();
-      resetBurrowFaces();
+  picks--;
+  updateScore();
 
-      headline.textContent = "Choose 3 burrows.";
-      subline.innerHTML = `Find the <strong>carrot</strong> to win. The golden egg is just a <strong>bonus</strong> if you happen to uncover it.`;
-      setStatus("Press Start Game to begin your three picks.");
-      setResult(
-        "Ready to play?",
-        "You get 3 picks each round. Find the carrot to win. If you spot the golden egg along the way, that’s a bonus extra."
-      );
+  if(picks===0){
+    document.getElementById("result").innerText="No carrot this time!";
+    revealAll();
+    end();
+  }
+}
 
-      if (fullReset) {
-        wins = 0;
-        bonusWins = 0;
-      }
+function revealAll(){
+  for(let i=0;i<6;i++){
+    let img=document.getElementById("r"+i);
+    img.classList.remove("hidden");
 
-      startBtn.disabled = false;
-      updateScore();
-    }
+    if(i===carrot) img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png";
+    else if(i===egg) img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png";
+    else img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png";
+  }
+}
 
-    function startRound() {
-      rerollPositions();
-      resetBurrowFaces();
-      state = "choosing";
-      picksLeft = 3;
-      startBtn.disabled = true;
+function end(){
+  active=false;
+}
 
-      document.querySelectorAll(".burrow").forEach((burrow) => {
-        burrow.className = "burrow";
-      });
+function resetGame(){
+  build();
+  document.getElementById("result").innerText="New round ready!";
+  document.getElementById("status").innerText="Press Start Game";
+  updateScore(true);
+}
 
-      setStatus("3 picks left. Start hunting!");
-      setResult("Pick your first burrow!", "You have 3 picks. The carrot is the winner.");
-      updateScore();
-    }
+function updateScore(reset=false){
+  if(reset){
+    wins=0;
+    eggs=0;
+  }
+  document.getElementById("score").innerText=
+    `Wins: ${wins} • Eggs: ${eggs} • Picks: ${picks}`;
+}
 
-    function endRound(foundBonus = false, foundCarrot = false) {
-      state = "revealed";
-      document.querySelectorAll(".burrow").forEach((burrow) => {
-        burrow.classList.add("disabled");
-      });
-      startBtn.disabled = false;
+build();
 
-      setTimeout(() => {
-        if (!foundCarrot) {
-          const winner = document.querySelector(`.burrow[data-index="${winningIndex}"]`);
-          if (winner && !winner.classList.contains("revealed")) {
-            revealAsset(winner, assetUrls.carrot, "Carrot was here");
-          }
-        }
+</script>
 
-        if (!foundBonus) {
-          const bonus = document.querySelector(`.burrow[data-index="${bonusIndex}"]`);
-          if (bonus && !bonus.classList.contains("revealed")) {
-            revealAsset(bonus, assetUrls.goldenEgg, "Bonus burrow");
-          }
-        }
-      }, 450);
-    }
-
-    function chooseBurrow(index) {
-      if (state !== "choosing") return;
-
-      const burrow = document.querySelector(`.burrow[data-index="${index}"]`);
-      if (!burrow || burrow.classList.contains("revealed")) return;
-
-      picksLeft -= 1;
-
-      if (index === winningIndex) {
-        revealAsset(burrow, assetUrls.carrot, "Winner! Carrot found");
-        wins += 1;
-        updateScore();
-        setStatus("You found the carrot!");
-        setResult("You win!", "You found Bunny’s carrot — that is the main prize.", "win");
-        endRound(index === bonusIndex, true);
-        return;
-      }
-
-      if (index === bonusIndex) {
-        revealAsset(burrow, assetUrls.goldenEgg, "Golden Egg Bonus");
-        bonusWins += 1;
-        updateScore();
-
-        if (picksLeft > 0) {
-          const picksText = picksLeft === 1 ? "Last pick left!" : `${picksLeft} picks left!`;
-          setStatus(picksText);
-          setResult(
-            "Bonus found!",
-            "You found the golden egg bonus. Nice one! But the carrot is still the main prize, so keep going.",
-            "win"
-          );
-        } else {
-          setStatus("Round over.");
-          setResult(
-            "Bonus found!",
-            "You found the golden egg bonus, but not the carrot. Bunny will now show you where the carrot was hiding.",
-            "win"
-          );
-          endRound(true, false);
-        }
-        return;
-      }
-
-      revealAsset(burrow, assetUrls.straw, "Just Straw");
-      updateScore();
-
-      if (picksLeft > 0) {
-        const picksText = picksLeft === 1 ? "Last pick left!" : `${picksLeft} picks left!`;
-        setStatus(picksText);
-        setResult(
-          "Keep going!",
-          `${loseLines[Math.floor(Math.random() * loseLines.length)]} ${picksLeft === 1 ? "You have 1 pick left." : `You have ${picksLeft} picks left.`}`,
-          "lose"
-        );
-      } else {
-        setStatus("Round over.");
-        setResult("No carrot this time!", "All 3 picks are used up, so Bunny will now reveal where the carrot was hiding.", "lose");
-        endRound(false, false);
-      }
-    }
-
-    startBtn.addEventListener("click", startRound);
-    resetBtn.addEventListener("click", () => resetRound(true));
-
-    createBurrows();
-    resetRound(true);
-  </script>
 </body>
 </html>
