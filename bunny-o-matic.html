@@ -4,27 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bunny-O-Matic</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Atma:wght@400;600;700&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --cream: #f4efdb;
       --panel: rgba(248, 244, 226, 0.96);
       --green-bg: #4f7f3f;
-      --green-light: #c8d99b;
-      --green-mid: #a9c878;
       --green-dark: #2f6b3a;
       --brown: #4f3117;
       --orange: #c86b3c;
-      --gold: #efc25b;
       --shadow: 0 10px 24px rgba(69, 49, 22, 0.18);
       --soft-border: #f1d98d;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -263,8 +256,7 @@
       background: transparent;
       border-radius: 999px;
       padding: 0;
-      overflow: hidden;
-      isolation: isolate;
+      overflow: visible;
       transition: transform 0.16s ease;
     }
 
@@ -279,22 +271,12 @@
     .burrow .hole {
       position: absolute;
       inset: 0;
-      background-size: cover;
+      background-image: url("https://www.billybobsparlour.com/wp-content/uploads/2026/03/Burrow.png");
+      background-size: contain;
+      background-repeat: no-repeat;
       background-position: center;
       border-radius: 999px;
-      border: 5px solid rgba(255, 242, 196, 0.95);
-      box-shadow: 0 12px 28px rgba(55, 36, 13, 0.18);
       overflow: hidden;
-    }
-
-    .burrow .hole::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 28% 22%, rgba(255,255,255,0.28), transparent 32%),
-        linear-gradient(180deg, transparent, rgba(0,0,0,0.12));
-      pointer-events: none;
     }
 
     .burrow.revealed .hole {
@@ -441,7 +423,7 @@
       <div class="header-wrap">
         <img
           class="header-art"
-          src="Bunny-o-matic-header.png"
+          src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Bunny-o-matic-header.png"
           alt="Bunny-O-Matic"
         />
       </div>
@@ -450,7 +432,7 @@
         <div class="host-wrap">
           <img
             class="host-bunny"
-            src="Host-bunny.png"
+            src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Host-bunny.png"
             alt="Bunny host"
           />
         </div>
@@ -498,10 +480,9 @@
 
   <script>
     const assetUrls = {
-      burrow: "Burrow.png",
-      carrot: "Carrot.png",
-      goldenEgg: "Golden-Egg.png",
-      straw: "Straw.png"
+      carrot: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png",
+      goldenEgg: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png",
+      straw: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png"
     };
 
     const burrowGrid = document.getElementById("burrowGrid");
@@ -536,7 +517,7 @@
         button.dataset.index = index;
         button.setAttribute("aria-label", `Burrow ${index + 1}`);
         button.innerHTML = `
-          <span class="hole" style="background-image:url('${assetUrls.burrow}')"></span>
+          <span class="hole"></span>
           <span class="burrow-content"></span>
         `;
         button.addEventListener("click", () => chooseBurrow(index));
@@ -565,7 +546,7 @@
     function revealAsset(burrow, imageUrl, label) {
       burrow.classList.add("revealed");
       burrow.querySelector(".burrow-content").innerHTML = `
-        <img src="${imageUrl}" alt="${label}" />
+        <img src="${imageUrl}" alt="${label}">
         <div class="mini-label">${label}</div>
       `;
     }
@@ -577,15 +558,17 @@
       });
     }
 
-    function resetRound(fullReset = false) {
-      state = "idle";
-      picksLeft = 3;
-
+    function rerollPositions() {
       winningIndex = Math.floor(Math.random() * 6);
       do {
         bonusIndex = Math.floor(Math.random() * 6);
       } while (bonusIndex === winningIndex);
+    }
 
+    function resetRound(fullReset = false) {
+      state = "idle";
+      picksLeft = 3;
+      rerollPositions();
       resetBurrowFaces();
 
       headline.textContent = "Choose 3 burrows.";
@@ -606,11 +589,7 @@
     }
 
     function startRound() {
-      winningIndex = Math.floor(Math.random() * 6);
-      do {
-        bonusIndex = Math.floor(Math.random() * 6);
-      } while (bonusIndex === winningIndex);
-
+      rerollPositions();
       resetBurrowFaces();
       state = "choosing";
       picksLeft = 3;
@@ -620,8 +599,6 @@
         burrow.className = "burrow";
       });
 
-      headline.textContent = "Choose 3 burrows.";
-      subline.innerHTML = `Find the <strong>carrot</strong> to win. The golden egg is just a <strong>bonus</strong> if you happen to uncover it.`;
       setStatus("3 picks left. Start hunting!");
       setResult("Pick your first burrow!", "You have 3 picks. The carrot is the winner.");
       updateScore();
@@ -695,7 +672,6 @@
       }
 
       revealAsset(burrow, assetUrls.straw, "Just Straw");
-      burrow.classList.add("disabled");
       updateScore();
 
       if (picksLeft > 0) {
