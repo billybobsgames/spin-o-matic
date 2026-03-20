@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bunny-O-Matic</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Atma:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream: #f4efdb;
+      --panel: rgba(248, 244, 226, 0.96);
+      --green-bg: #4f7f3f;
+      --green-light: #c8d99b;
+      --green-mid: #a9c878;
+      --green-dark: #2f6b3a;
+      --brown: #4f3117;
+      --orange: #c86b3c;
+      --gold: #efc25b;
+      --shadow: 0 10px 24px rgba(69, 49, 22, 0.18);
+      --soft-border: #f1d98d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Atma", cursive;
+      background: var(--green-bg);
+      color: var(--brown);
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .game-shell {
+      background:
+        linear-gradient(180deg, #edf0df 0%, #e7edd5 34%, #c8d99b 34%, #a7c879 100%);
+      border: 4px solid rgba(255, 243, 205, 0.8);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+      min-height: calc(100vh - 36px);
+      position: relative;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255,255,255,0.25);
+      border-radius: 999px;
+      filter: blur(1px);
+      pointer-events: none;
+    }
+
+    .cloud.one {
+      width: 180px;
+      height: 44px;
+      left: 70px;
+      top: 45px;
+    }
+
+    .cloud.two {
+      width: 140px;
+      height: 38px;
+      right: 78px;
+      top: 80px;
+    }
+
+    .header-wrap {
+      padding: 24px 24px 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .header-art {
+      max-width: 1100px;
+      width: 100%;
+      display: block;
+      filter: drop-shadow(0 6px 0 rgba(89, 56, 17, 0.08));
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .intro-row {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 22px;
+      align-items: center;
+      padding: 0 28px 18px;
+    }
+
+    .host-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .host-bunny {
+      width: 150px;
+      max-width: 100%;
+      display: block;
+      filter: drop-shadow(0 10px 18px rgba(40, 24, 9, 0.18));
+    }
+
+    .speech {
+      background: var(--panel);
+      border: 4px solid var(--soft-border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 18px 24px;
+      text-align: center;
+    }
+
+    .speech h2 {
+      margin: 0 0 8px;
+      font-family: "GoodDog New", "Atma", cursive;
+      font-size: 2rem;
+      line-height: 1;
+      color: #c54f43;
+      font-weight: 700;
+    }
+
+    .speech p {
+      margin: 0;
+      font-family: "Atma", cursive;
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .main-panel {
+      padding: 0 28px 28px;
+    }
+
+    .instruction-card {
+      background: var(--panel);
+      border: 4px solid var(--soft-border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 14px 18px 16px;
+      max-width: 760px;
+      margin: 0 auto 16px;
+      text-align: center;
+    }
+
+    .instruction-card .eyebrow {
+      font-family: "Atma", cursive;
+      font-size: 0.9rem;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .instruction-card h1 {
+      margin: 0 0 6px;
+      font-family: "American Purpose", "Atma", cursive;
+      font-size: clamp(2rem, 2vw + 1rem, 3rem);
+      line-height: 0.95;
+      color: var(--green-dark);
+      text-transform: uppercase;
+    }
+
+    .instruction-card p {
+      margin: 0;
+      font-family: "Atma", cursive;
+      font-size: 1rem;
+      line-height: 1.15;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 0 0 12px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .btn {
+      min-width: 168px;
+      padding: 14px 24px;
+      border-radius: 999px;
+      font-family: "American Purpose", "Atma", cursive;
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      box-shadow: 0 7px 0 rgba(95, 59, 19, 0.16);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 9px 0 rgba(95, 59, 19, 0.14);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 4px 0 rgba(95, 59, 19, 0.16);
+    }
+
+    .btn:disabled {
+      opacity: 0.58;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #f3c758 0%, #e5a62d 100%);
+      border: 3px solid #ffe8ac;
+      color: #5b3514;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(180deg, #ea7664 0%, #d64f48 100%);
+      border: 3px solid #ffd4c4;
+      color: #fff6e1;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .status-pill,
+    .score-pill {
+      background: rgba(255, 249, 231, 0.96);
+      border: 3px solid rgba(255, 233, 174, 0.92);
+      border-radius: 999px;
+      padding: 10px 16px;
+      box-shadow: 0 6px 14px rgba(64, 46, 21, 0.1);
+      font-family: "Atma", cursive;
+      font-size: 0.95rem;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .board-row {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 22px;
+      align-items: start;
+      margin-top: 10px;
+    }
+
+    .mini-speech {
+      background: rgba(255, 248, 232, 0.96);
+      border: 4px solid var(--soft-border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 14px 14px 12px;
+      text-align: center;
+    }
+
+    .mini-speech h3 {
+      margin: 0 0 6px;
+      font-family: "GoodDog New", "Atma", cursive;
+      font-size: 1.7rem;
+      line-height: 1;
+      color: var(--green-dark);
+      font-weight: 700;
+    }
+
+    .mini-speech p {
+      margin: 0;
+      font-family: "Atma", cursive;
+      font-size: 0.95rem;
+      line-height: 1.15;
+    }
+
+    .burrow-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(170px, 1fr));
+      gap: 20px;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .burrow {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background: transparent;
+      border-radius: 999px;
+      padding: 0;
+      overflow: hidden;
+      isolation: isolate;
+      transition: transform 0.16s ease;
+    }
+
+    .burrow:not(.disabled):not(.revealed):hover {
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    .burrow.disabled {
+      cursor: default;
+    }
+
+    .burrow .hole {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      border-radius: 999px;
+      border: 5px solid rgba(255, 242, 196, 0.95);
+      box-shadow: 0 12px 28px rgba(55, 36, 13, 0.18);
+      overflow: hidden;
+    }
+
+    .burrow .hole::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 28% 22%, rgba(255,255,255,0.28), transparent 32%),
+        linear-gradient(180deg, transparent, rgba(0,0,0,0.12));
+      pointer-events: none;
+    }
+
+    .burrow.revealed .hole {
+      opacity: 0.2;
+      transform: scale(0.92);
+      transition: 0.28s ease;
+    }
+
+    .burrow-content {
+      position: absolute;
+      inset: 14% 12% 12%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(16px) scale(0.84);
+      transition: opacity 0.28s ease, transform 0.32s ease;
+      pointer-events: none;
+    }
+
+    .burrow.revealed .burrow-content {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .burrow-content img {
+      max-width: 78%;
+      max-height: 78%;
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,0.16));
+    }
+
+    .mini-label {
+      margin-top: 8px;
+      background: rgba(255, 250, 232, 0.98);
+      border-radius: 999px;
+      padding: 5px 10px 6px;
+      font-family: "Atma", cursive;
+      font-size: 0.84rem;
+      line-height: 1;
+      font-weight: 700;
+      color: #5c3d19;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.08);
+    }
+
+    .result-card {
+      background: rgba(255, 244, 228, 0.96);
+      border: 4px solid var(--soft-border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 16px 22px;
+      max-width: 760px;
+      margin: 22px auto 0;
+      text-align: center;
+    }
+
+    .result-card h3 {
+      margin: 0 0 4px;
+      font-family: "American Purpose", "Atma", cursive;
+      font-size: clamp(1.8rem, 1.2rem + 1.2vw, 2.4rem);
+      line-height: 0.95;
+      color: var(--green-dark);
+      text-transform: uppercase;
+    }
+
+    .result-card p {
+      margin: 0;
+      font-family: "Atma", cursive;
+      font-size: 1rem;
+      line-height: 1.15;
+    }
+
+    .result-card.win {
+      background: linear-gradient(180deg, rgba(255,248,226,0.98), rgba(255,236,188,0.96));
+    }
+
+    .result-card.lose {
+      background: linear-gradient(180deg, rgba(255,248,226,0.98), rgba(255,229,214,0.96));
+    }
+
+    @media (max-width: 980px) {
+      .intro-row,
+      .board-row {
+        grid-template-columns: 1fr;
+      }
+
+      .host-wrap {
+        justify-content: center;
+      }
+
+      .host-bunny {
+        width: 130px;
+      }
+
+      .mini-speech {
+        max-width: 360px;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 10px;
+      }
+
+      .header-wrap,
+      .intro-row,
+      .main-panel {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .burrow-grid {
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
+        gap: 14px;
+      }
+
+      .instruction-card h1 {
+        font-size: 2.2rem;
+      }
+
+      .speech h2 {
+        font-size: 1.7rem;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .burrow-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .controls .btn {
+        width: 100%;
+      }
+
+      .status-row {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="game-shell">
+      <div class="cloud one"></div>
+      <div class="cloud two"></div>
+
+      <div class="header-wrap">
+        <img
+          class="header-art"
+          src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Bunny-o-matic-header.png"
+          alt="Bunny-O-Matic"
+        />
+      </div>
+
+      <div class="intro-row">
+        <div class="host-wrap">
+          <img
+            class="host-bunny"
+            src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Host-bunny.png"
+            alt="Bunny host"
+          />
+        </div>
+
+        <div class="speech">
+          <h2>Hey there, bunny buddy!</h2>
+          <p>
+            Can you find my carrot?<br />
+            You’ve got 3 picks — choose your burrows wisely!<br />
+            Oh — and keep an eye out for the golden egg… that’s worth bonus points!
+          </p>
+        </div>
+      </div>
+
+      <div class="main-panel">
+        <section class="instruction-card">
+          <div class="eyebrow">Pick 3 burrows</div>
+          <h1 id="headline">Choose 3 burrows.</h1>
+          <p id="subline">
+            Find the <strong>carrot</strong> to win. The golden egg is just a <strong>bonus</strong> if you happen to uncover it.
+          </p>
+        </section>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="startBtn">Start Shuffle</button>
+          <button class="btn btn-secondary" id="resetBtn">New Round</button>
+        </div>
+
+        <div class="status-row">
+          <div class="status-pill" id="statusText">Press Start Shuffle to begin your three picks.</div>
+          <div class="score-pill" id="scoreText">Wins: 0 · Golden eggs: 0 · Picks left: 3</div>
+        </div>
+
+        <div class="board-row">
+          <div class="mini-speech">
+            <h3>Hey there, bunny buddy!</h3>
+            <p>Pick 3 burrows and see if you can find Bunny’s carrot!</p>
+          </div>
+
+          <section class="burrow-grid" id="burrowGrid" aria-label="Burrow choices"></section>
+        </div>
+
+        <section class="result-card" id="resultCard">
+          <div>
+            <h3>Ready to play?</h3>
+            <p>You get 3 picks each round. Find the carrot to win. If you spot the golden egg along the way, that’s a bonus extra.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const assetUrls = {
+      burrow: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Burrow.png",
+      carrot: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png",
+      goldenEgg: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png",
+      straw: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png"
+    };
+
+    const burrowGrid = document.getElementById("burrowGrid");
+    const startBtn = document.getElementById("startBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const statusText = document.getElementById("statusText");
+    const scoreText = document.getElementById("scoreText");
+    const resultCard = document.getElementById("resultCard");
+    const headline = document.getElementById("headline");
+    const subline = document.getElementById("subline");
+
+    let state = "idle";
+    let winningIndex = 0;
+    let bonusIndex = 1;
+    let wins = 0;
+    let bonusWins = 0;
+    let picksLeft = 3;
+
+    const loseLines = [
+      "Oops! Just straw in this burrow.",
+      "Nope — Bunny left this one empty.",
+      "Only straw here, partner.",
+      "Not this burrow. Keep hunting!"
+    ];
+
+    function createBurrows() {
+      burrowGrid.innerHTML = "";
+      for (let index = 0; index < 6; index++) {
+        const button = document.createElement("button");
+        button.className = "burrow disabled";
+        button.type = "button";
+        button.dataset.index = index;
+        button.setAttribute("aria-label", `Burrow ${index + 1}`);
+        button.innerHTML = `
+          <span class="hole" style="background-image:url('${assetUrls.burrow}')"></span>
+          <span class="burrow-content"></span>
+        `;
+        button.addEventListener("click", () => chooseBurrow(index));
+        burrowGrid.appendChild(button);
+      }
+    }
+
+    function updateScore() {
+      scoreText.textContent = `Wins: ${wins} · Golden eggs: ${bonusWins} · Picks left: ${picksLeft}`;
+    }
+
+    function setStatus(text) {
+      statusText.textContent = text;
+    }
+
+    function setResult(title, body, kind = "") {
+      resultCard.className = `result-card ${kind}`.trim();
+      resultCard.innerHTML = `
+        <div>
+          <h3>${title}</h3>
+          <p>${body}</p>
+        </div>
+      `;
+    }
+
+    function revealAsset(burrow, imageUrl, label) {
+      burrow.classList.add("revealed");
+      burrow.querySelector(".burrow-content").innerHTML = `
+        <img src="${imageUrl}" alt="${label}" />
+        <div class="mini-label">${label}</div>
+      `;
+    }
+
+    function resetBurrowFaces() {
+      document.querySelectorAll(".burrow").forEach((burrow) => {
+        burrow.className = "burrow disabled";
+        burrow.querySelector(".burrow-content").innerHTML = "";
+      });
+    }
+
+    function resetRound(fullReset = false) {
+      state = "idle";
+      picksLeft = 3;
+
+      winningIndex = Math.floor(Math.random() * 6);
+      do {
+        bonusIndex = Math.floor(Math.random() * 6);
+      } while (bonusIndex === winningIndex);
+
+      resetBurrowFaces();
+
+      headline.textContent = "Choose 3 burrows.";
+      subline.innerHTML = `Find the <strong>carrot</strong> to win. The golden egg is just a <strong>bonus</strong> if you happen to uncover it.`;
+      setStatus("Press Start Shuffle to begin your three picks.");
+      setResult(
+        "Ready to play?",
+        "You get 3 picks each round. Find the carrot to win. If you spot the golden egg along the way, that’s a bonus extra."
+      );
+
+      if (fullReset) {
+        wins = 0;
+        bonusWins = 0;
+      }
+
+      startBtn.disabled = false;
+      updateScore();
+    }
+
+    function startRound() {
+      winningIndex = Math.floor(Math.random() * 6);
+      do {
+        bonusIndex = Math.floor(Math.random() * 6);
+      } while (bonusIndex === winningIndex);
+
+      resetBurrowFaces();
+      state = "choosing";
+      picksLeft = 3;
+      startBtn.disabled = true;
+
+      document.querySelectorAll(".burrow").forEach((burrow) => {
+        burrow.className = "burrow";
+      });
+
+      headline.textContent = "Choose 3 burrows.";
+      subline.innerHTML = `Find the <strong>carrot</strong> to win. The golden egg is just a <strong>bonus</strong> if you happen to uncover it.`;
+      setStatus("3 picks left. Start hunting!");
+      setResult("Pick your first burrow!", "You have 3 picks. The carrot is the winner.");
+      updateScore();
+    }
+
+    function endRound(foundBonus = false, foundCarrot = false) {
+      state = "revealed";
+      document.querySelectorAll(".burrow").forEach((burrow) => {
+        burrow.classList.add("disabled");
+      });
+      startBtn.disabled = false;
+
+      setTimeout(() => {
+        if (!foundCarrot) {
+          const winner = document.querySelector(`.burrow[data-index="${winningIndex}"]`);
+          if (winner && !winner.classList.contains
