@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ding-O-Matic</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Atma:wght@400;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Atma', cursive;
+  background:#4f7f3f;
+}
+
+.game-shell{
+  max-width:900px;
+  margin:6px auto;
+  background:linear-gradient(#edf0df,#c8d99b);
+  border-radius:24px;
+  padding:8px;
+}
+
+.header img{
+  width:100%;
+  display:block;
+}
+
+/* TOP AREA */
+.top{
+  padding:4px 8px 6px;
+}
+
+.speech-wrap{
+  position:relative;
+  max-width:760px;
+  margin:0 auto;
+  padding-left:90px;
+}
+
+.overlap-bunny{
+  position:absolute;
+  left:0;
+  top:50%;
+  transform:translateY(-50%);
+  width:100px;
+}
+
+.speech{
+  background:#f8f4e2;
+  border-radius:18px;
+  padding:10px 12px 10px 36px;
+  min-height:90px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.speech h2{
+  margin:0 0 3px;
+  font-size:1.2rem;
+  color:#c54f43;
+  font-family:'Fredoka', sans-serif;
+  font-weight:700;
+  letter-spacing:0.5px;
+}
+
+.speech p{
+  font-size:0.82rem;
+  margin:0;
+  line-height:1.05;
+  font-family:'Atma', cursive;
+}
+
+/* INSTRUCTIONS */
+.instructions{
+  background:#f8f4e2;
+  border-radius:18px;
+  padding:8px;
+  text-align:center;
+  margin:6px 0;
+}
+
+.instructions h2{
+  margin:0;
+  font-size:1.3rem;
+  color:#2f6b3a;
+  font-family:'Fredoka', sans-serif;
+  font-weight:600;
+  letter-spacing:0.5px;
+}
+
+.instructions p{
+  font-size:0.8rem;
+  margin-top:4px;
+  font-family:'Atma', cursive;
+}
+
+/* BUTTONS */
+.button-row{
+  display:flex;
+  gap:6px;
+  margin:6px 0;
+}
+
+button{
+  flex:1;
+  padding:8px;
+  border:none;
+  border-radius:999px;
+  font-size:0.85rem;
+  cursor:pointer;
+  font-family:'Fredoka', sans-serif;
+  font-weight:600;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+}
+
+.start{
+  background:#f3c758;
+}
+
+.reset{
+  background:#d64f48;
+  color:#fff;
+}
+
+/* STATUS */
+.status{
+  background:#fff5dc;
+  padding:6px;
+  border-radius:999px;
+  text-align:center;
+  font-size:0.75rem;
+  margin-top:4px;
+  font-family:'Atma', cursive;
+}
+
+/* GAME BOARD */
+.game-board{
+  position:relative;
+  background:url('https://www.billybobsparlour.com/wp-content/uploads/2026/03/Countryside.png') center/cover no-repeat;
+  border-radius:22px;
+  margin-top:6px;
+  min-height:360px;
+  overflow:hidden;
+}
+
+/* Soft overlay so items pop */
+.game-board::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(255,255,255,0.15);
+  pointer-events:none;
+}
+
+/* HOLES / SPAWN POINTS */
+.hole{
+  position:absolute;
+  width:22%;
+  aspect-ratio:1/1;
+}
+
+/* ITEMS */
+.item{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%) scale(0.4);
+  width:55%;
+  max-width:90px;
+  opacity:0;
+  transition:0.15s;
+}
+
+.hole.active .item{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+  cursor:pointer;
+}
+
+/* RESULT */
+.result{
+  background:#f8f4e2;
+  border-radius:18px;
+  padding:8px;
+  text-align:center;
+  margin-top:6px;
+}
+
+.result h3{
+  margin:0;
+  font-size:1.2rem;
+  color:#2f6b3a;
+  font-family:'Fredoka', sans-serif;
+  font-weight:700;
+}
+
+.result p{
+  margin:0;
+  font-size:0.8rem;
+  font-family:'Atma', cursive;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-shell">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Ding-o-matic-header.png" alt="Ding-O-Matic header">
+  </div>
+
+  <!-- SPEECH -->
+  <div class="top">
+    <div class="speech-wrap">
+      <img class="overlap-bunny" src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Host-bunny.png" alt="Bunny host">
+      <div class="speech">
+        <h2>Ready… Ding!</h2>
+        <p>Tap carrots and eggs fast! But watch out… straw ends the game!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSTRUCTIONS -->
+  <div class="instructions">
+    <h2>Tap the treats</h2>
+    <p>Carrot = 1 • Egg = 3 • Straw = GAME OVER</p>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="button-row">
+    <button class="start" onclick="startGame()">START</button>
+    <button class="reset" onclick="resetGame()">RESET</button>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status" id="time">Time: 20</div>
+  <div class="status" id="score">Score: 0</div>
+
+  <!-- GAME -->
+  <div class="game-board" id="board"></div>
+
+  <!-- RESULT -->
+  <div class="result" id="result">
+    <h3>Ready?</h3>
+    <p>Tap start to play!</p>
+  </div>
+
+</div>
+
+<script>
+const carrot = 'https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png';
+const egg = 'https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png';
+const straw = 'https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png';
+const rabbit = 'https://www.billybobsparlour.com/wp-content/uploads/2026/03/Sitting-rabbit.png';
+
+const board = document.getElementById('board');
+
+let score = 0;
+let time = 20;
+let active = false;
+let timer;
+let popper;
+let current;
+
+const positions = [
+  { l:'10%', t:'20%' },
+  { l:'40%', t:'15%' },
+  { l:'70%', t:'20%' },
+  { l:'15%', t:'55%' },
+  { l:'45%', t:'50%' },
+  { l:'70%', t:'55%' }
+];
+
+positions.forEach(p => {
+  let h = document.createElement('div');
+  h.className = 'hole';
+  h.style.left = p.l;
+  h.style.top = p.t;
+
+  let i = document.createElement('img');
+  i.className = 'item';
+  i.onclick = hit;
+
+  h.appendChild(i);
+  board.appendChild(h);
+});
+
+function startGame(){
+  score = 0;
+  time = 20;
+  active = true;
+  update();
+  next();
+
+  clearInterval(timer);
+  timer = setInterval(() => {
+    time--;
+    update();
+    if(time <= 0) end('Time up!');
+  }, 1000);
+}
+
+function next(){
+  if(!active) return;
+
+  clear();
+
+  let holes = [...document.querySelectorAll('.hole')];
+  current = holes[Math.floor(Math.random() * holes.length)];
+
+  let r = Math.random();
+  let type = 'carrot';
+
+  if(r < 0.2) type = 'egg';
+  else if(r < 0.35) type = 'straw';
+  else if(r < 0.5) type = 'rabbit';
+
+  current.dataset.type = type;
+
+  let img = current.querySelector('.item');
+
+  img.src =
+    type === 'egg' ? egg :
+    type === 'straw' ? straw :
+    type === 'rabbit' ? rabbit :
+    carrot;
+
+  current.classList.add('active');
+
+  const nextDelay = 1800 + Math.random() * 1200;
+  popper = setTimeout(next, nextDelay);
+}
+
+function hit(e){
+  e.stopPropagation();
+  if(!active) return;
+
+  let type = current.dataset.type;
+
+  if(type === 'straw'){
+    end('Oh no! Straw! Game over!');
+    return;
+  }
+
+  if(type === 'egg') score += 3;
+  else if(type === 'carrot') score += 1;
+  else if(type === 'rabbit') score += 2;
+
+  update();
+  setTimeout(next, 400);
+}
+
+function clear(){
+  document.querySelectorAll('.hole').forEach(h => h.classList.remove('active'));
+  clearTimeout(popper);
+}
+
+function end(msg){
+  active = false;
+  clearInterval(timer);
+  clearTimeout(popper);
+
+  document.getElementById('result').innerHTML =
+    `<h3>${msg}</h3><p>Score: ${score}</p>`;
+}
+
+function resetGame(){
+  active = false;
+  clearInterval(timer);
+  clearTimeout(popper);
+
+  score = 0;
+  time = 20;
+  update();
+
+  document.getElementById('result').innerHTML =
+    '<h3>Ready?</h3><p>Tap start to play!</p>';
+
+  clear();
+}
+
+function update(){
+  document.getElementById('time').innerText = 'Time: ' + time;
+  document.getElementById('score').innerText = 'Score: ' + score;
+}
+</script>
+
+</body>
+</html>
