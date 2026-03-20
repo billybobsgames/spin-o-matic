@@ -1,284 +1,449 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bunny-O-Matic</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bunny-O-Matic</title>
+  <link href="https://fonts.googleapis.com/css2?family=Atma:wght@400;600;700&display=swap" rel="stylesheet" />
 
-<link href="https://fonts.googleapis.com/css2?family=Atma:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Atma', cursive;
+      background: #4f7f3f;
+    }
 
-<style>
-body {
-  margin:0;
-  font-family: 'Atma', cursive;
-  background:#4f7f3f;
-}
+    .game-shell {
+      max-width: 900px;
+      margin: 8px auto;
+      background: linear-gradient(#edf0df, #c8d99b);
+      border-radius: 24px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
 
-.game-shell{
-  max-width:900px;
-  margin:10px auto;
-  background:linear-gradient(#edf0df,#c8d99b);
-  border-radius:24px;
-  padding:10px;
-}
+    .header img {
+      width: 100%;
+      display: block;
+    }
 
-/* HEADER */
-.header img{
-  width:100%;
-}
+    .top {
+      padding: 6px 10px 8px;
+    }
 
-/* BUNNY + TEXT */
-.top{
-  text-align:center;
-  padding:10px;
-}
+    .speech-wrap {
+      position: relative;
+      max-width: 760px;
+      margin: 0 auto;
+      padding-left: 92px;
+    }
 
-.bunny{
-  width:120px;
-}
+    .bunny {
+      width: 120px;
+      display: block;
+    }
 
-.speech{
-  background:#f8f4e2;
-  border-radius:18px;
-  padding:14px;
-  margin-top:8px;
-}
+    .overlap-bunny {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 120px;
+      z-index: 2;
+    }
 
-.speech h2{
-  color:#c54f43;
-  margin:0;
-  font-size:1.5rem;
-}
+    .speech {
+      background: #f8f4e2;
+      border-radius: 18px;
+      padding: 14px 16px 14px 44px;
+      text-align: left;
+      min-height: 118px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-sizing: border-box;
+    }
 
-.speech p{
-  font-size:0.95rem;
-  margin-top:6px;
-}
+    .speech h2 {
+      color: #c54f43;
+      margin: 0 0 4px;
+      font-size: 1.35rem;
+      line-height: 1;
+      font-family: "GoodDog New", "Atma", cursive;
+    }
 
-/* INSTRUCTION BOX */
-.instructions{
-  background:#f8f4e2;
-  border-radius:18px;
-  padding:12px;
-  text-align:center;
-  margin:10px 0;
-}
+    .speech p {
+      font-size: 0.9rem;
+      margin: 0;
+      line-height: 1.1;
+    }
 
-.instructions h1{
-  margin:0;
-  font-size:1.6rem;
-  color:#2f6b3a;
-}
+    .instructions {
+      background: #f8f4e2;
+      border-radius: 18px;
+      padding: 12px;
+      text-align: center;
+      margin: 8px 0;
+    }
 
-.instructions p{
-  font-size:0.9rem;
-}
+    .instructions h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      color: #2f6b3a;
+      font-family: "American Purpose", "Atma", cursive;
+      text-transform: uppercase;
+      line-height: 1;
+    }
 
-/* BUTTONS */
-button{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border:none;
-  border-radius:999px;
-  font-size:1rem;
-}
+    .instructions p {
+      font-size: 0.9rem;
+      margin: 6px 0 0;
+      line-height: 1.1;
+    }
 
-.start{background:#f3c758;}
-.reset{background:#d64f48;color:white;}
+    .button-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 8px 0 6px;
+    }
 
-/* STATUS */
-.status{
-  background:#fff5dc;
-  padding:8px;
-  border-radius:999px;
-  text-align:center;
-  font-size:0.85rem;
-  margin-top:6px;
-}
+    button {
+      width: auto;
+      min-width: 145px;
+      padding: 10px 18px;
+      margin: 0;
+      border: none;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-family: "American Purpose", "Atma", cursive;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
 
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:10px;
-}
+    .start {
+      background: #f3c758;
+      color: #4f3117;
+    }
 
-.burrow{
-  position:relative;
-}
+    .reset {
+      background: #d64f48;
+      color: white;
+    }
 
-.burrow img{
-  width:100%;
-}
+    .status {
+      background: #fff5dc;
+      padding: 8px;
+      border-radius: 999px;
+      text-align: center;
+      font-size: 0.85rem;
+      margin-top: 6px;
+      line-height: 1.05;
+    }
 
-.hidden{
-  display:none;
-}
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
 
-.reveal{
-  position:absolute;
-  top:10%;
-  left:10%;
-  width:80%;
-}
+    .burrow {
+      position: relative;
+      cursor: pointer;
+    }
 
-/* RESULT */
-.result{
-  background:#f8f4e2;
-  border-radius:18px;
-  padding:12px;
-  text-align:center;
-  margin-top:12px;
-}
+    .burrow img.base {
+      width: 100%;
+      display: block;
+    }
 
-</style>
+    .hidden {
+      display: none;
+    }
+
+    .reveal {
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      width: 80%;
+    }
+
+    .result {
+      background: #f8f4e2;
+      border-radius: 18px;
+      padding: 12px;
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.95rem;
+      line-height: 1.1;
+    }
+
+    .result h3 {
+      margin: 0 0 6px;
+      color: #2f6b3a;
+      font-family: "American Purpose", "Atma", cursive;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .result p {
+      margin: 0;
+    }
+
+    @media (max-width: 600px) {
+      .game-shell {
+        margin: 6px;
+        padding: 8px;
+      }
+
+      .speech-wrap {
+        padding-left: 76px;
+      }
+
+      .overlap-bunny {
+        width: 96px;
+      }
+
+      .speech {
+        padding: 12px 12px 12px 34px;
+        min-height: 104px;
+      }
+
+      .speech h2 {
+        font-size: 1.15rem;
+      }
+
+      .speech p {
+        font-size: 0.82rem;
+        line-height: 1.06;
+      }
+
+      .instructions {
+        padding: 10px;
+        margin: 8px 0;
+      }
+
+      .instructions h1 {
+        font-size: 1.4rem;
+      }
+
+      .instructions p {
+        font-size: 0.84rem;
+        line-height: 1.05;
+      }
+
+      .button-row {
+        gap: 8px;
+      }
+
+      button {
+        min-width: 0;
+        flex: 1;
+        font-size: 0.88rem;
+        padding: 10px 12px;
+      }
+
+      .status {
+        font-size: 0.8rem;
+        padding: 7px 10px;
+        margin-top: 5px;
+      }
+
+      .grid {
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .result {
+        padding: 10px;
+        margin-top: 10px;
+      }
+
+      .result h3 {
+        font-size: 1.3rem;
+      }
+
+      .result p {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
 <div class="game-shell">
 
-<!-- HEADER -->
-<div class="header">
-<img src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Bunny-o-matic-header.png">
-</div>
+  <div class="header">
+    <img src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Bunny-o-matic-header.png" alt="Bunny-O-Matic header">
+  </div>
 
-<!-- BUNNY -->
-<div class="top">
-<img class="bunny" src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Host-bunny.png">
+  <div class="top">
+    <div class="speech-wrap">
+      <img class="bunny overlap-bunny" src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Host-bunny.png" alt="Bunny host">
 
-<div class="speech">
-<h2>Hey there, bunny buddy!</h2>
-<p>
-Can you find my carrot?<br>
-You’ve got 3 picks — choose your burrows wisely!<br>
-Oh — and keep an eye out for the golden egg… that’s worth bonus points!
-</p>
-</div>
-</div>
+      <div class="speech">
+        <h2>Hey there, bunny buddy!</h2>
+        <p>
+          Can you find my carrot?<br>
+          You’ve got 3 picks — choose your burrows wisely!<br>
+          Oh — and keep an eye out for the golden egg… that’s worth bonus points!
+        </p>
+      </div>
+    </div>
+  </div>
 
-<!-- INSTRUCTIONS -->
-<div class="instructions">
-<h1>Choose 3 burrows</h1>
-<p>Find the <b>carrot</b> to win. The golden egg is a bonus!</p>
-</div>
+  <div class="instructions">
+    <h1>Choose 3 burrows</h1>
+    <p>Find the <b>carrot</b> to win. The golden egg is a bonus!</p>
+  </div>
 
-<!-- BUTTONS -->
-<button class="start" onclick="startGame()">START GAME</button>
-<button class="reset" onclick="resetGame()">NEW ROUND</button>
+  <div class="button-row">
+    <button class="start" onclick="startGame()">START GAME</button>
+    <button class="reset" onclick="resetGame()">NEW ROUND</button>
+  </div>
 
-<div class="status" id="status">Press Start Game to begin</div>
-<div class="status" id="score">Wins: 0 • Eggs: 0 • Picks: 3</div>
+  <div class="status" id="status">Press Start Game to begin</div>
+  <div class="status" id="score">Wins: 0 • Eggs: 0 • Picks: 3</div>
 
-<!-- GRID -->
-<div class="grid" id="grid"></div>
+  <div class="grid" id="grid"></div>
 
-<!-- RESULT -->
-<div class="result" id="result">
-Ready to play? Pick 3 burrows!
-</div>
+  <div class="result" id="result">
+    <h3>Ready to play?</h3>
+    <p>You get 3 picks each round. Find the carrot to win.</p>
+  </div>
 
 </div>
 
 <script>
-
 let carrot, egg;
-let picks=3;
-let wins=0;
-let eggs=0;
-let active=false;
+let picks = 3;
+let wins = 0;
+let eggs = 0;
+let active = false;
 
-const grid=document.getElementById("grid");
+const grid = document.getElementById("grid");
 
-function build(){
-  grid.innerHTML="";
-  for(let i=0;i<6;i++){
-    let div=document.createElement("div");
-    div.className="burrow";
-    div.innerHTML=`
-      <img src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Burrow.png">
-      <img class="reveal hidden" id="r${i}">
+function build() {
+  grid.innerHTML = "";
+  for (let i = 0; i < 6; i++) {
+    let div = document.createElement("div");
+    div.className = "burrow";
+    div.innerHTML = `
+      <img class="base" src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Burrow.png" alt="Burrow">
+      <img class="reveal hidden" id="r${i}" alt="">
     `;
-    div.onclick=()=>pick(i);
+    div.onclick = () => pick(i);
     grid.appendChild(div);
   }
 }
 
-function startGame(){
-  carrot=Math.floor(Math.random()*6);
-  do{ egg=Math.floor(Math.random()*6);}while(egg===carrot);
-  picks=3;
-  active=true;
-  document.getElementById("status").innerText="Pick a burrow!";
+function startGame() {
+  carrot = Math.floor(Math.random() * 6);
+  do {
+    egg = Math.floor(Math.random() * 6);
+  } while (egg === carrot);
+
+  picks = 3;
+  active = true;
+
+  for (let i = 0; i < 6; i++) {
+    const reveal = document.getElementById("r" + i);
+    reveal.classList.add("hidden");
+    reveal.src = "";
+  }
+
+  document.getElementById("status").innerText = "Pick a burrow!";
+  document.getElementById("result").innerHTML = `
+    <h3>Let’s go!</h3>
+    <p>You’ve got 3 picks — good luck!</p>
+  `;
   updateScore();
 }
 
-function pick(i){
-  if(!active)return;
+function pick(i) {
+  if (!active) return;
 
-  let img=document.getElementById("r"+i);
+  let img = document.getElementById("r" + i);
+  if (!img.classList.contains("hidden")) return;
+
   img.classList.remove("hidden");
 
-  if(i===carrot){
-    img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png";
+  if (i === carrot) {
+    img.src = "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png";
     wins++;
-    document.getElementById("result").innerText="You found the carrot!";
+    document.getElementById("result").innerHTML = `
+      <h3>You found the carrot!</h3>
+      <p>That’s the main prize — nice one!</p>
+    `;
     end();
+    updateScore();
     return;
   }
 
-  if(i===egg){
-    img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png";
+  if (i === egg) {
+    img.src = "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png";
     eggs++;
+    document.getElementById("status").innerText = "Golden egg found — keep going!";
   } else {
-    img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png";
+    img.src = "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png";
   }
 
   picks--;
   updateScore();
 
-  if(picks===0){
-    document.getElementById("result").innerText="No carrot this time!";
+  if (picks <= 0) {
+    document.getElementById("result").innerHTML = `
+      <h3>No carrot this time!</h3>
+      <p>All 3 picks are used up, so here’s where everything was hiding.</p>
+    `;
     revealAll();
     end();
+  } else {
+    document.getElementById("status").innerText = picks === 1 ? "Last pick left!" : `Picks left: ${picks}`;
   }
 }
 
-function revealAll(){
-  for(let i=0;i<6;i++){
-    let img=document.getElementById("r"+i);
+function revealAll() {
+  for (let i = 0; i < 6; i++) {
+    let img = document.getElementById("r" + i);
     img.classList.remove("hidden");
 
-    if(i===carrot) img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png";
-    else if(i===egg) img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png";
-    else img.src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png";
+    if (i === carrot) {
+      img.src = "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png";
+    } else if (i === egg) {
+      img.src = "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png";
+    } else {
+      img.src = "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png";
+    }
   }
 }
 
-function end(){
-  active=false;
+function end() {
+  active = false;
+  document.getElementById("status").innerText = "Round over.";
 }
 
-function resetGame(){
+function resetGame() {
   build();
-  document.getElementById("result").innerText="New round ready!";
-  document.getElementById("status").innerText="Press Start Game";
-  updateScore(true);
+  picks = 3;
+  wins = 0;
+  eggs = 0;
+  active = false;
+  document.getElementById("status").innerText = "Press Start Game to begin";
+  document.getElementById("result").innerHTML = `
+    <h3>Ready to play?</h3>
+    <p>You get 3 picks each round. Find the carrot to win.</p>
+  `;
+  updateScore();
 }
 
-function updateScore(reset=false){
-  if(reset){
-    wins=0;
-    eggs=0;
-  }
-  document.getElementById("score").innerText=
-    `Wins: ${wins} • Eggs: ${eggs} • Picks: ${picks}`;
+function updateScore() {
+  document.getElementById("score").innerText = `Wins: ${wins} • Eggs: ${eggs} • Picks: ${picks}`;
 }
 
 build();
-
 </script>
 
 </body>
