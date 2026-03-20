@@ -249,39 +249,6 @@
       font-weight: 700;
     }
 
-    .board-row {
-      display: grid;
-      grid-template-columns: 170px 1fr;
-      gap: 22px;
-      align-items: start;
-      margin-top: 10px;
-    }
-
-    .mini-speech {
-      background: rgba(255, 248, 232, 0.96);
-      border: 4px solid var(--soft-border);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      padding: 14px 14px 12px;
-      text-align: center;
-    }
-
-    .mini-speech h3 {
-      margin: 0 0 6px;
-      font-family: "GoodDog New", "Atma", cursive;
-      font-size: 1.7rem;
-      line-height: 1;
-      color: var(--green-dark);
-      font-weight: 700;
-    }
-
-    .mini-speech p {
-      margin: 0;
-      font-family: "Atma", cursive;
-      font-size: 0.95rem;
-      line-height: 1.15;
-    }
-
     .burrow-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(170px, 1fr));
@@ -410,8 +377,7 @@
     }
 
     @media (max-width: 980px) {
-      .intro-row,
-      .board-row {
+      .intro-row {
         grid-template-columns: 1fr;
       }
 
@@ -421,11 +387,6 @@
 
       .host-bunny {
         width: 130px;
-      }
-
-      .mini-speech {
-        max-width: 360px;
-        margin: 0 auto;
       }
     }
 
@@ -480,7 +441,7 @@
       <div class="header-wrap">
         <img
           class="header-art"
-          src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Bunny-o-matic-header.png"
+          src="Bunny-o-matic-header.png"
           alt="Bunny-O-Matic"
         />
       </div>
@@ -489,7 +450,7 @@
         <div class="host-wrap">
           <img
             class="host-bunny"
-            src="https://www.billybobsparlour.com/wp-content/uploads/2026/03/Host-bunny.png"
+            src="Host-bunny.png"
             alt="Bunny host"
           />
         </div>
@@ -514,23 +475,16 @@
         </section>
 
         <div class="controls">
-          <button class="btn btn-primary" id="startBtn">Start Shuffle</button>
+          <button class="btn btn-primary" id="startBtn">Start Game</button>
           <button class="btn btn-secondary" id="resetBtn">New Round</button>
         </div>
 
         <div class="status-row">
-          <div class="status-pill" id="statusText">Press Start Shuffle to begin your three picks.</div>
+          <div class="status-pill" id="statusText">Press Start Game to begin your three picks.</div>
           <div class="score-pill" id="scoreText">Wins: 0 · Golden eggs: 0 · Picks left: 3</div>
         </div>
 
-        <div class="board-row">
-          <div class="mini-speech">
-            <h3>Hey there, bunny buddy!</h3>
-            <p>Pick 3 burrows and see if you can find Bunny’s carrot!</p>
-          </div>
-
-          <section class="burrow-grid" id="burrowGrid" aria-label="Burrow choices"></section>
-        </div>
+        <section class="burrow-grid" id="burrowGrid" aria-label="Burrow choices"></section>
 
         <section class="result-card" id="resultCard">
           <div>
@@ -544,10 +498,10 @@
 
   <script>
     const assetUrls = {
-      burrow: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Burrow.png",
-      carrot: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Carrot.png",
-      goldenEgg: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Golden-Egg.png",
-      straw: "https://www.billybobsparlour.com/wp-content/uploads/2026/03/Straw.png"
+      burrow: "Burrow.png",
+      carrot: "Carrot.png",
+      goldenEgg: "Golden-Egg.png",
+      straw: "Straw.png"
     };
 
     const burrowGrid = document.getElementById("burrowGrid");
@@ -636,7 +590,7 @@
 
       headline.textContent = "Choose 3 burrows.";
       subline.innerHTML = `Find the <strong>carrot</strong> to win. The golden egg is just a <strong>bonus</strong> if you happen to uncover it.`;
-      setStatus("Press Start Shuffle to begin your three picks.");
+      setStatus("Press Start Game to begin your three picks.");
       setResult(
         "Ready to play?",
         "You get 3 picks each round. Find the carrot to win. If you spot the golden egg along the way, that’s a bonus extra."
@@ -683,4 +637,87 @@
       setTimeout(() => {
         if (!foundCarrot) {
           const winner = document.querySelector(`.burrow[data-index="${winningIndex}"]`);
-          if (winner && !winner.classList.contains
+          if (winner && !winner.classList.contains("revealed")) {
+            revealAsset(winner, assetUrls.carrot, "Carrot was here");
+          }
+        }
+
+        if (!foundBonus) {
+          const bonus = document.querySelector(`.burrow[data-index="${bonusIndex}"]`);
+          if (bonus && !bonus.classList.contains("revealed")) {
+            revealAsset(bonus, assetUrls.goldenEgg, "Bonus burrow");
+          }
+        }
+      }, 450);
+    }
+
+    function chooseBurrow(index) {
+      if (state !== "choosing") return;
+
+      const burrow = document.querySelector(`.burrow[data-index="${index}"]`);
+      if (!burrow || burrow.classList.contains("revealed")) return;
+
+      picksLeft -= 1;
+
+      if (index === winningIndex) {
+        revealAsset(burrow, assetUrls.carrot, "Winner! Carrot found");
+        wins += 1;
+        updateScore();
+        setStatus("You found the carrot!");
+        setResult("You win!", "You found Bunny’s carrot — that is the main prize.", "win");
+        endRound(index === bonusIndex, true);
+        return;
+      }
+
+      if (index === bonusIndex) {
+        revealAsset(burrow, assetUrls.goldenEgg, "Golden Egg Bonus");
+        bonusWins += 1;
+        updateScore();
+
+        if (picksLeft > 0) {
+          const picksText = picksLeft === 1 ? "Last pick left!" : `${picksLeft} picks left!`;
+          setStatus(picksText);
+          setResult(
+            "Bonus found!",
+            "You found the golden egg bonus. Nice one! But the carrot is still the main prize, so keep going.",
+            "win"
+          );
+        } else {
+          setStatus("Round over.");
+          setResult(
+            "Bonus found!",
+            "You found the golden egg bonus, but not the carrot. Bunny will now show you where the carrot was hiding.",
+            "win"
+          );
+          endRound(true, false);
+        }
+        return;
+      }
+
+      revealAsset(burrow, assetUrls.straw, "Just Straw");
+      burrow.classList.add("disabled");
+      updateScore();
+
+      if (picksLeft > 0) {
+        const picksText = picksLeft === 1 ? "Last pick left!" : `${picksLeft} picks left!`;
+        setStatus(picksText);
+        setResult(
+          "Keep going!",
+          `${loseLines[Math.floor(Math.random() * loseLines.length)]} ${picksLeft === 1 ? "You have 1 pick left." : `You have ${picksLeft} picks left.`}`,
+          "lose"
+        );
+      } else {
+        setStatus("Round over.");
+        setResult("No carrot this time!", "All 3 picks are used up, so Bunny will now reveal where the carrot was hiding.", "lose");
+        endRound(false, false);
+      }
+    }
+
+    startBtn.addEventListener("click", startRound);
+    resetBtn.addEventListener("click", () => resetRound(true));
+
+    createBurrows();
+    resetRound(true);
+  </script>
+</body>
+</html>
