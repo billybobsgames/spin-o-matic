@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Billy Bob's Word-O-Matic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    :root {
+      --cream-bg: #F8EDE3;
+      --card: #FFFFFF;
+      --teal: #007C7A;
+      --teal-dark: #24515A;
+      --red: #C62828;
+      --red-dark: #8e1c1c;
+      --yellow: #F5B82E;
+      --green: #2F6D2F;
+      --brown: #6B3F22;
+      --muted: #7a6c5d;
+      --soft-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Trebuchet MS", system-ui, sans-serif;
+      background: var(--cream-bg);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      color: var(--teal-dark);
+      text-align: center;
+    }
+
+    .game-wrapper {
+      max-width: 480px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 18px 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .game-card {
+      width: 100%;
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: var(--soft-shadow);
+      padding: 18px 16px 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-placeholder {
+      font-size: 2.2rem;
+      font-weight: 900;
+      font-style: italic;
+      color: var(--teal-dark);
+      margin-bottom: 2px;
+      line-height: 1;
+    }
+
+    .game-title-panel {
+      display: inline-block;
+      background: var(--green);
+      color: #FFF6D7;
+      border-radius: 14px;
+      padding: 9px 18px 10px;
+      margin: 8px 0 10px;
+      transform: rotate(-1deg);
+      box-shadow: 0 5px 0 rgba(0,0,0,0.12);
+    }
+
+    .game-title-panel h1 {
+      font-size: 2rem;
+      line-height: 0.98;
+      margin: 0;
+      letter-spacing: 1px;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+      color: #FFE7A1;
+    }
+
+    .subtitle,
+    .small-text,
+    .tagline {
+      color: var(--muted);
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      margin: 10px 0 16px;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .mode-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .mode-btn,
+    .primary-btn,
+    .letter-btn,
+    .slot {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mode-btn,
+    .primary-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #fff;
+      box-shadow: 0 3px 0 var(--red-dark);
+      background: var(--red);
+      transition: transform 0.08s, box-shadow 0.08s, filter 0.2s;
+      font-weight: 700;
+    }
+
+    .mode-btn:active,
+    .primary-btn:active,
+    .letter-btn:active,
+    .slot:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.25);
+    }
+
+    .mode-btn.easy {
+      background: var(--teal);
+      box-shadow: 0 3px 0 #005C5A;
+    }
+
+    .mode-btn.hard {
+      background: var(--red);
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin: 4px 0 10px;
+    }
+
+    .timer-wrap {
+      margin: 8px 0 14px;
+      background: #F2E3D3;
+      border-radius: 999px;
+      height: 14px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 100%;
+      background: var(--yellow);
+      transition: width 0.25s linear;
+    }
+
+    .timer-bar.low {
+      background: var(--red);
+    }
+
+    .clue-box {
+      background: #FFF6D7;
+      border: 2px solid #F1C75B;
+      border-radius: 16px;
+      padding: 13px 12px;
+      margin: 10px 0 16px;
+      color: #5f432b;
+    }
+
+    .clue-label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .clue-text {
+      font-size: 1.05rem;
+      line-height: 1.25;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .slots {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 7px;
+      min-height: 54px;
+      margin: 12px 0 16px;
+    }
+
+    .slot {
+      width: 42px;
+      height: 48px;
+      border-radius: 12px;
+      border: 2px dashed #A9D5D2;
+      background: #EFFDFC;
+      color: var(--teal-dark);
+      font-size: 1.35rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.08);
+    }
+
+    .letter-pool {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 9px;
+      min-height: 66px;
+      margin: 6px 0 16px;
+    }
+
+    .letter-btn {
+      width: 46px;
+      height: 50px;
+      border: none;
+      border-radius: 13px;
+      background: var(--red);
+      color: #fff;
+      font-size: 1.35rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 0 var(--red-dark);
+      animation: floaty 2.2s ease-in-out infinite;
+    }
+
+    .letter-btn:nth-child(2n) { animation-delay: 0.2s; }
+    .letter-btn:nth-child(3n) { animation-delay: 0.4s; }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-3px) rotate(1deg); }
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: center;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+
+    .primary-btn.secondary {
+      background: var(--teal);
+      box-shadow: 0 3px 0 #005C5A;
+    }
+
+    .primary-btn.hidden {
+      display: none;
+    }
+
+    .feedback {
+      min-height: 2.7em;
+      font-size: 0.96rem;
+      margin: 10px 0 6px;
+      color: #5f432b;
+      font-weight: 700;
+    }
+
+    .combo-badge {
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      transform: translate(-50%, -50%) scale(0.7) rotate(-4deg);
+      background: var(--yellow);
+      color: var(--brown);
+      border-radius: 18px;
+      padding: 16px 22px;
+      font-size: 1.35rem;
+      font-weight: 900;
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+      z-index: 10;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .combo-badge.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotate(-4deg);
+    }
+
+    .shake {
+      animation: shake 0.28s linear;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-3px); }
+    }
+
+    .pop {
+      animation: pop 0.35s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .final-score {
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: var(--teal-dark);
+      margin: 10px 0;
+    }
+
+    .rank {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--red);
+      margin: 8px 0 16px;
+    }
+
+    .tagline {
+      margin-top: 12px;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 380px) {
+      .game-title-panel h1 { font-size: 1.65rem; }
+      .slot { width: 36px; height: 44px; font-size: 1.15rem; }
+      .letter-btn { width: 40px; height: 46px; font-size: 1.15rem; }
+      .clue-text { font-size: 0.98rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-wrapper">
+    <div id="gameCard" class="game-card">
+      <img src="https://www.billybobsparlour.com/wp-content/uploads/2026/05/Word-o-Matic.png"
+           alt="Billy Bob's Word-O-Matic"
+           style="max-width: 100%; height: auto; margin-bottom: 10px;">
+
+      <div id="comboBadge" class="combo-badge">HOT STREAK!</div>
+
+      <section id="startScreen" class="screen active">
+        <p class="subtitle">Build the word before the timer runs out. Ten words, quick as a wink!</p>
+
+        <div class="mode-buttons">
+          <button class="mode-btn easy" onclick="startGame('easy')">Little Wranglers</button>
+          <button class="mode-btn hard" onclick="startGame('hard')">Big Shots</button>
+        </div>
+
+        <p class="small-text">Easy mode has shorter words. Big Shots gets trickier and faster.</p>
+      </section>
+
+      <section id="playScreen" class="screen">
+        <div class="hud">
+          <span id="roundCount">Word 1 / 10</span>
+          <span id="scoreText">Score 0</span>
+          <span id="timeText">30s</span>
+        </div>
+
+        <div class="timer-wrap">
+          <div id="timerBar" class="timer-bar"></div>
+        </div>
+
+        <div class="clue-box">
+          <span class="clue-label">Clue</span>
+          <p id="clueText" class="clue-text"></p>
+        </div>
+
+        <div id="slots" class="slots"></div>
+        <div id="letterPool" class="letter-pool"></div>
+
+        <div class="action-row">
+          <button id="shuffleButton" class="primary-btn secondary" onclick="shuffleRemainingLetters()">Shuffle</button>
+          <button id="clearButton" class="primary-btn" onclick="clearBuiltWord()">Clear</button>
+        </div>
+
+        <p id="feedback" class="feedback"></p>
+      </section>
+
+      <section id="endScreen" class="screen">
+        <p class="subtitle">Round finished!</p>
+        <p id="finalScore" class="final-score"></p>
+        <p id="rankText" class="rank"></p>
+        <p id="endMessage" class="small-text"></p>
+
+        <div class="action-row">
+          <button class="primary-btn secondary" onclick="showStartScreen()">Choose Mode</button>
+          <button class="primary-btn" onclick="startGame(currentMode)">Play Again</button>
+        </div>
+      </section>
+
+      <p class="tagline">Billy Bob's — tastes like happiness!</p>
+    </div>
+  </div>
+
+  <script>
+    const TOTAL_WORDS = 10;
+
+    const easyWords = [
+      { clue: "Dad might eat this with fries.", answer: "BURGER" },
+      { clue: "A cold, creamy drink with a straw.", answer: "SHAKE" },
+      { clue: "A sweet treat with ice cream on top.", answer: "SUNDAE" },
+      { clue: "A spooky orange vegetable.", answer: "PUMPKIN" },
+      { clue: "You sit at this to eat your food.", answer: "TABLE" },
+      { clue: "A fizzy drink with bubbles.", answer: "SODA" },
+      { clue: "A yummy breakfast stack.", answer: "PANCAKE" },
+      { clue: "A glowing sign you might see at night.", answer: "NEON" },
+      { clue: "A place where you order food.", answer: "DINER" },
+      { clue: "A round scoop of frozen happiness.", answer: "ICECREAM" },
+      { clue: "A Christmas visitor in a red suit.", answer: "SANTA" },
+      { clue: "You drink through this.", answer: "STRAW" },
+      { clue: "A crispy potato side.", answer: "FRIES" },
+      { clue: "A little prize found in an Easter hunt.", answer: "EGG" },
+      { clue: "A sweet thing you might unwrap.", answer: "CANDY" }
+    ];
+
+    const hardWords = [
+      { clue: "Billy Bob's spooky October celebration.", answer: "HALLOWEEN" },
+      { clue: "The counter where old-time sodas and floats were made.", answer: "FOUNTAIN" },
+      { clue: "A classic American sandwich from Philadelphia.", answer: "CHEESESTEAK" },
+      { clue: "A roadside journey full of pitstops.", answer: "ROADTRIP" },
+      { clue: "A glowing sign outside a classic diner.", answer: "NEONSIGN" },
+      { clue: "The sweet syrup often poured on pancakes.", answer: "MAPLE" },
+      { clue: "The place where the kids burn off energy.", answer: "PLAYBARN" },
+      { clue: "A fizzy ice-cream drink served tall.", answer: "FLOAT" },
+      { clue: "A festive December adventure.", answer: "CHRISTMAS" },
+      { clue: "Crispy curly onions named after a rolling desert plant.", answer: "TUMBLEWEED" },
+      { clue: "A proper American-style breakfast favorite.", answer: "PANCAKES" },
+      { clue: "The smoky meat that goes soft and tender.", answer: "PULLEDPORK" },
+      { clue: "The word for a small old-style music machine.", answer: "JUKEBOX" },
+      { clue: "A sweet red fruit often added to cola.", answer: "CHERRY" },
+      { clue: "A baseball-game style hot dog.", answer: "BALLPARK" }
+    ];
+
+    const sayings = [
+      "Gee whiz, nice work!",
+      "You betcha!",
+      "Hot dog! That's it!",
+      "Holy moly, you're on fire!",
+      "Well butter my biscuit!"
+    ];
+
+    let currentMode = "easy";
+    let currentWords = [];
+    let wordIndex = 0;
+    let score = 0;
+    let streak = 0;
+    let selectedLetters = [];
+    let remainingLetters = [];
+    let timer = null;
+    let timeLeft = 30;
+    let roundTime = 30;
+    let acceptingInput = true;
+
+    const startScreen = document.getElementById("startScreen");
+    const playScreen = document.getElementById("playScreen");
+    const endScreen = document.getElementById("endScreen");
+    const gameCard = document.getElementById("gameCard");
+    const comboBadge = document.getElementById("comboBadge");
+
+    const roundCount = document.getElementById("roundCount");
+    const scoreText = document.getElementById("scoreText");
+    const timeText = document.getElementById("timeText");
+    const timerBar = document.getElementById("timerBar");
+    const clueText = document.getElementById("clueText");
+    const slots = document.getElementById("slots");
+    const letterPool = document.getElementById("letterPool");
+    const feedback = document.getElementById("feedback");
+    const finalScore = document.getElementById("finalScore");
+    const rankText = document.getElementById("rankText");
+    const endMessage = document.getElementById("endMessage");
+
+    function showScreen(screen) {
+      startScreen.classList.remove("active");
+      playScreen.classList.remove("active");
+      endScreen.classList.remove("active");
+      screen.classList.add("active");
+    }
+
+    function showStartScreen() {
+      stopTimer();
+      showScreen(startScreen);
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function startGame(mode) {
+      currentMode = mode;
+      const source = mode === "easy" ? easyWords : hardWords;
+      currentWords = shuffle(source).slice(0, TOTAL_WORDS);
+      wordIndex = 0;
+      score = 0;
+      streak = 0;
+      roundTime = mode === "easy" ? 35 : 25;
+      showScreen(playScreen);
+      loadWord();
+    }
+
+    function loadWord() {
+      stopTimer();
+      acceptingInput = true;
+      selectedLetters = [];
+
+      const current = currentWords[wordIndex];
+      remainingLetters = shuffle(current.answer.split(""));
+
+      roundCount.textContent = `Word ${wordIndex + 1} / ${TOTAL_WORDS}`;
+      scoreText.textContent = `Score ${score}`;
+      clueText.textContent = current.clue;
+      feedback.textContent = "";
+
+      renderSlots();
+      renderLetters();
+      startTimer();
+    }
+
+    function renderSlots() {
+      const answer = currentWords[wordIndex].answer;
+      slots.innerHTML = "";
+
+      answer.split("").forEach((_, index) => {
+        const slot = document.createElement("button");
+        slot.className = "slot";
+        slot.textContent = selectedLetters[index] || "";
+        slot.addEventListener("click", () => removeLetter(index));
+        slots.appendChild(slot);
+      });
+    }
+
+    function renderLetters() {
+      letterPool.innerHTML = "";
+
+      remainingLetters.forEach((letter, index) => {
+        const btn = document.createElement("button");
+        btn.className = "letter-btn";
+        btn.textContent = letter;
+        btn.addEventListener("click", () => addLetter(index));
+        letterPool.appendChild(btn);
+      });
+    }
+
+    function addLetter(index) {
+      if (!acceptingInput) return;
+
+      const answer = currentWords[wordIndex].answer;
+      if (selectedLetters.length >= answer.length) return;
+
+      const letter = remainingLetters[index];
+      remainingLetters.splice(index, 1);
+      selectedLetters.push(letter);
+
+      renderSlots();
+      renderLetters();
+
+      if (selectedLetters.length === answer.length) {
+        checkWord();
+      }
+    }
+
+    function removeLetter(index) {
+      if (!acceptingInput) return;
+      if (!selectedLetters[index]) return;
+
+      const letter = selectedLetters[index];
+      selectedLetters.splice(index, 1);
+      remainingLetters.push(letter);
+
+      renderSlots();
+      renderLetters();
+    }
+
+    function clearBuiltWord() {
+      if (!acceptingInput) return;
+      remainingLetters = shuffle([...remainingLetters, ...selectedLetters]);
+      selectedLetters = [];
+      renderSlots();
+      renderLetters();
+      feedback.textContent = "";
+    }
+
+    function shuffleRemainingLetters() {
+      if (!acceptingInput) return;
+      remainingLetters = shuffle(remainingLetters);
+      renderLetters();
+    }
+
+    function checkWord() {
+      const answer = currentWords[wordIndex].answer;
+      const guess = selectedLetters.join("");
+
+      if (guess === answer) {
+        handleCorrect();
+      } else {
+        handleWrong();
+      }
+    }
+
+    function handleCorrect() {
+      acceptingInput = false;
+      stopTimer();
+
+      const timeBonus = Math.max(0, timeLeft);
+      const streakBonus = streak >= 2 ? 10 : 0;
+      score += 50 + timeBonus + streakBonus;
+      streak++;
+
+      scoreText.textContent = `Score ${score}`;
+      feedback.textContent = sayings[Math.floor(Math.random() * sayings.length)];
+
+      gameCard.classList.add("pop");
+      setTimeout(() => gameCard.classList.remove("pop"), 360);
+
+      if (streak === 3) showCombo("HOT STREAK!");
+      if (streak === 5) showCombo("NEON LEGEND!");
+
+      setTimeout(nextWord, 850);
+    }
+
+    function handleWrong() {
+      acceptingInput = false;
+      streak = 0;
+      feedback.textContent = "Nice try! The letters will reset.";
+
+      gameCard.classList.add("shake");
+      setTimeout(() => gameCard.classList.remove("shake"), 300);
+
+      setTimeout(() => {
+        clearBuiltWord();
+        acceptingInput = true;
+      }, 650);
+    }
+
+    function startTimer() {
+      timeLeft = roundTime;
+      updateTimerDisplay();
+      timer = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+
+        if (timeLeft <= 5 && timeLeft > 0) {
+          gameCard.classList.add("shake");
+          setTimeout(() => gameCard.classList.remove("shake"), 180);
+        }
+
+        if (timeLeft <= 0) {
+          stopTimer();
+          timeUp();
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timer) clearInterval(timer);
+      timer = null;
+    }
+
+    function updateTimerDisplay() {
+      timeText.textContent = `${timeLeft}s`;
+      const percent = Math.max(0, (timeLeft / roundTime) * 100);
+      timerBar.style.width = `${percent}%`;
+      timerBar.classList.toggle("low", timeLeft <= 5);
+    }
+
+    function timeUp() {
+      acceptingInput = false;
+      streak = 0;
+      feedback.textContent = `Time's up! The word was ${currentWords[wordIndex].answer}.`;
+      setTimeout(nextWord, 1200);
+    }
+
+    function nextWord() {
+      wordIndex++;
+
+      if (wordIndex >= TOTAL_WORDS) {
+        endGame();
+      } else {
+        loadWord();
+      }
+    }
+
+    function endGame() {
+      stopTimer();
+      showScreen(endScreen);
+
+      finalScore.textContent = `${score} points`;
+
+      let rank = "Soda Starter";
+      if (score >= 700) rank = "Billy Bob's Champion";
+      else if (score >= 560) rank = "Diner Legend";
+      else if (score >= 420) rank = "Neon Cruiser";
+      else if (score >= 280) rank = "Route 66 Rookie";
+
+      rankText.textContent = rank;
+      endMessage.textContent = "Gee whiz! Have another go while you wait for your food.";
+    }
+
+    function showCombo(text) {
+      comboBadge.textContent = text;
+      comboBadge.classList.add("show");
+      setTimeout(() => comboBadge.classList.remove("show"), 850);
+    }
+  </script>
+</body>
+</html>
